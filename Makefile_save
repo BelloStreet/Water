@@ -1,0 +1,23 @@
+DEPENDENCIES_BOUND = num_mod.f90 quads.f90 gq.f90 dvr_mod.f90 mol_mod.f90 setgrid.f90 spherical.f90 wigner.f90
+
+DEPENDENCIES_BOUND.o = num_mod.o quads.o gq.o dvr_mod.o mol_mod.o setgrid.o spherical.o wigner.o
+
+include ${SLEPC_DIR}/lib/slepc/conf/slepc_common
+
+DEP.o:
+	ifort -c ${DEPENDENCIES_BOUND}
+
+h2OpBO.o: DEP.o
+	-${FLINKER} -I${PETSC_DIR}/include${PETSC_SUBDIR} -c matricesf90.F ${DEPENDENCIES_BOUND} ${PETSC_SYS_LIB}
+
+boundf90.o: h2OpBO.o chkopts
+	-${FLINKER}  -I${PETSC_DIR}/include${PETSC_SUBDIR} -c boundf90.F -o boundf90.o ${SLEPC_INCLUDE}
+boundf90: boundf90.o chkopts
+	-${FLINKER}  -o ../bin/boundf90 boundf90.o matricesf90.o  ${DEPENDENCIES_BOUND} ${SLEPC_LIB}
+
+clear:
+	find . -type f -name '*.o' -delete
+	find . -type f -name '*.mod' -delete
+
+
+

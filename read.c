@@ -374,19 +374,20 @@ int main(void){
   free(mo_occu);
   free(center_xyz);
 
-  /* for(ygrid=0;ygrid<200;ygrid++){ */
-  /*   y=(-6.0+ygrid*0.06); */
-  /*   for(xgrid=0;xgrid<200;xgrid++){ */
-  /*     x=(-6.0+xgrid*0.06); */
-  /*     printf("% .8le % .8le % .8le\n",y,x,mo_orb[xgrid][ygrid][100]); */
-  /*   } */
-  /*   printf("\n"); */
+  for(ygrid=0;ygrid<200;ygrid++){
+    y=(-6.0+ygrid*0.06);
+    for(zgrid=0;zgrid<200;zgrid++){
+      z=(-6.0+zgrid*0.06);
+      printf("% .8le % .8le % .8le\n",y,z,mo_orb[100][ygrid][zgrid]);
+    }
+    printf("\n");
+  }
+
+  /* for(zgrid=0;zgrid<200;zgrid++){ */
+  /*   z=(-6.0+zgrid*0.06); */
+  /*   printf("% .8le % .8le\n",z,mo_orb[100][100][zgrid]); */
   /* } */
 
-  for(zgrid=0;zgrid<200;zgrid++){
-    z=(-6.0+zgrid*0.06);
-    printf("% .8le % .8le\n",z,mo_orb[100][100][zgrid]);
-  }
   free(mo_orb);
   return 0;
 }
