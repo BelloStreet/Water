@@ -108,8 +108,9 @@ void _genlm(char *symm,char *irrep,int l){
     }
     file=fopen(fichero,"w");
     for(i=l0;i<l;i=i+2){
+      //      fprintf(file,"%d %d %s\n",i,m0,cs);
       for(m=m0;m<=i;m=m+2){
-	fprintf(file,"%d %d %s\n",i,m,cs);
+       	fprintf(file,"%d %d %s\n",i,m,cs);
       }
     }
     fclose(file);
@@ -131,12 +132,12 @@ void _genlm(char *symm,char *irrep,int l){
 void _C3jBlm(char *str1,char *str2,int j1,int j2,int j3,int m1,int m2,int m3,cmplx *zeta,cmplx *beta){
   int i,j,k,l;
   double y,z,*xi,*yi,*zi,*wi,phi,theta;
-  const int n=1454;//n=974;
+  const int n=2354;//n=974;
   xi=(double*)calloc(n,sizeof(double));
   yi=(double*)calloc(n,sizeof(double));
   zi=(double*)calloc(n,sizeof(double));
   wi=(double*)calloc(n,sizeof(double));
-  ld1454(xi,yi,zi,wi);
+  ld2354(xi,yi,zi,wi);
   *zeta=0.0+0.0*I;
   *beta=0.0+0.0*I;
   for(j=0;j<n;j++){
@@ -160,9 +161,8 @@ void _C3jBlm(char *str1,char *str2,int j1,int j2,int j3,int m1,int m2,int m3,cmp
 }
 
 void _GETC3J(int id,int lmax,char *str1,char *str2, int lmorb1,int lmorb2,int *lo1,int *mo1,int *lo2,int *mo2,double **C3Kj,double **C3Ki,double **C3Jj,double **C3Ji,int type){
-  int i,j,k,lv,mv,nsph,*la,*ma,tag=99;
+  int i,j,k,lv,mv,nsph,*la,*ma;
   cmplx zeta,beta;
-  MPI_Status *status;
   nsph=(lmax-1)*(lmax+1)+1;
   la=(int*)calloc(nsph,sizeof(int));
   ma=(int*)calloc(nsph,sizeof(int));

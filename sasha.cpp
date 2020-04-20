@@ -108,10 +108,10 @@ void _genlm(char *symm,char *irrep,int l){
     }
     file=fopen(fichero,"w");
     for(i=l0;i<l;i=i+2){
-      fprintf(file,"%d %d %s\n",i,m0,cs);
-      // for(m=m0;m<=i;m=m+2){
-      // 	fprintf(file,"%d %d %s\n",i,m,cs);
-      // }
+      //      fprintf(file,"%d %d %s\n",i,m0,cs);
+      for(m=m0;m<=i;m=m+2){
+       	fprintf(file,"%d %d %s\n",i,m,cs);
+      }
     }
     fclose(file);
   }
@@ -160,7 +160,7 @@ void _C3jBlm(char *str1,char *str2,int j1,int j2,int j3,int m1,int m2,int m3,cmp
   free(wi);
 }
 
-void _GETC3J(int id,int lmax,char *str1,char *str2, int lmorb1,int lmorb2,int *lo1,int *mo1,int *lo2,int *mo2,double **C3Kj,double **C3Ki,double **C3Jj,double **C3Ji,int type){
+void _GETC3J(int id,int lmax,char *str1,char *str2, int lmorb1,int lmorb2,int *lo1,int *mo1,int *lo2,int *mo2,cmplx **C3Kj,cmplx **C3Ki,cmplx **C3Jj,cmplx **C3Ji,int type){
   int i,j,k,lv,mv,nsph,*la,*ma;
   cmplx zeta,beta;
   nsph=(lmax-1)*(lmax+1)+1;
@@ -184,10 +184,10 @@ void _GETC3J(int id,int lmax,char *str1,char *str2, int lmorb1,int lmorb2,int *l
       }
     }
   }
-  *C3Kj=(double*)calloc(lmorb1*lmorb2*nsph,sizeof(double));
-  *C3Ki=(double*)calloc(lmorb1*lmorb2*nsph,sizeof(double));
-  *C3Jj=(double*)calloc(lmorb1*lmorb1*nsph,sizeof(double));
-  *C3Ji=(double*)calloc(lmorb2*lmorb2*nsph,sizeof(double));
+  *C3Kj=(cmplx*)calloc(lmorb1*lmorb2*nsph,sizeof(cmplx));
+  *C3Ki=(cmplx*)calloc(lmorb1*lmorb2*nsph,sizeof(cmplx));
+  *C3Jj=(cmplx*)calloc(lmorb1*lmorb1*nsph,sizeof(cmplx));
+  *C3Ji=(cmplx*)calloc(lmorb2*lmorb2*nsph,sizeof(cmplx));
 
   if(id==0){
     for(i=0;i<lmorb1;i++){
@@ -198,17 +198,17 @@ void _GETC3J(int id,int lmax,char *str1,char *str2, int lmorb1,int lmorb2,int *l
 	    for(mv=0;mv<=lv;mv++){  
 	      if(mv==0){
 		_C3jBlm(str1,str2,lo1[i],lo2[j],la[k],mo1[i],mo2[j],ma[k],&zeta,&beta);
-		(*C3Kj)[k+nsph*(j+lmorb2*i)]=creal(zeta);
-		(*C3Ki)[k+nsph*(j+lmorb2*i)]=creal(beta);	  
+		(*C3Kj)[k+nsph*(j+lmorb2*i)]=zeta;
+		(*C3Ki)[k+nsph*(j+lmorb2*i)]=beta;	  
 		k++;
 	      }
 	      else{
 		_C3jBlm(str1,str2,lo1[i],lo2[j],la[k],mo1[i],mo2[j],ma[k],&zeta,&beta);
-		(*C3Kj)[k+nsph*(j+lmorb2*i)]=creal(zeta);
-		(*C3Ki)[k+nsph*(j+lmorb2*i)]=creal(beta);	  	      
+		(*C3Kj)[k+nsph*(j+lmorb2*i)]=zeta;
+		(*C3Ki)[k+nsph*(j+lmorb2*i)]=beta;	  	      
 		k++;
-		(*C3Kj)[k+nsph*(j+lmorb2*i)]=creal(beta);
-		(*C3Ki)[k+nsph*(j+lmorb2*i)]=creal(zeta);	  	      
+		(*C3Kj)[k+nsph*(j+lmorb2*i)]=beta;
+		(*C3Ki)[k+nsph*(j+lmorb2*i)]=zeta;	  	      
 		k++;
 	      }	    
 	    }
@@ -237,17 +237,17 @@ void _GETC3J(int id,int lmax,char *str1,char *str2, int lmorb1,int lmorb2,int *l
 	    for(mv=0;mv<=lv;mv++){  
 	      if(mv==0){
 		_C3jBlm(str1,str1,lo1[i],lo1[j],la[k],mo1[i],mo1[j],ma[k],&zeta,&beta);
-		(*C3Jj)[k+nsph*(j+lmorb1*i)]=creal(zeta);
-		(*C3Jj)[k+nsph*(i+lmorb1*j)]=creal(zeta); /////
+		(*C3Jj)[k+nsph*(j+lmorb1*i)]=zeta;
+		(*C3Jj)[k+nsph*(i+lmorb1*j)]=zeta; /////
 		k++;
 	      }
 	      else{
 		_C3jBlm(str1,str1,lo1[i],lo1[j],la[k],mo1[i],mo1[j],ma[k],&zeta,&beta);
-		(*C3Jj)[k+nsph*(j+lmorb1*i)]=creal(zeta);
-		(*C3Jj)[k+nsph*(i+lmorb1*j)]=creal(zeta); ///////
+		(*C3Jj)[k+nsph*(j+lmorb1*i)]=zeta;
+		(*C3Jj)[k+nsph*(i+lmorb1*j)]=zeta; ///////
 		k++;
-		(*C3Jj)[k+nsph*(j+lmorb1*i)]=creal(beta);
-		(*C3Jj)[k+nsph*(i+lmorb1*j)]=creal(beta); //////
+		(*C3Jj)[k+nsph*(j+lmorb1*i)]=beta;
+		(*C3Jj)[k+nsph*(i+lmorb1*j)]=beta; //////
 		k++;
 	      }	    
 	    }
@@ -274,17 +274,17 @@ void _GETC3J(int id,int lmax,char *str1,char *str2, int lmorb1,int lmorb2,int *l
 	    for(mv=0;mv<=lv;mv++){  	  
 	      if(mv==0){
 		_C3jBlm(str2,str2,lo2[i],lo2[j],la[k],mo2[i],mo2[j],ma[k],&zeta,&beta);
-		(*C3Ji)[k+nsph*(j+lmorb2*i)]=creal(beta);
-		(*C3Ji)[k+nsph*(i+lmorb2*j)]=creal(beta); ////
+		(*C3Ji)[k+nsph*(j+lmorb2*i)]=beta;
+		(*C3Ji)[k+nsph*(i+lmorb2*j)]=beta; ////
 		k++;
 	      }
 	      else{
 		_C3jBlm(str2,str2,lo2[i],lo2[j],la[k],mo2[i],mo2[j],ma[k],&zeta,&beta);
-		(*C3Ji)[k+nsph*(j+lmorb2*i)]=creal(beta);
-		(*C3Ji)[k+nsph*(i+lmorb2*j)]=creal(beta); ////
+		(*C3Ji)[k+nsph*(j+lmorb2*i)]=beta;
+		(*C3Ji)[k+nsph*(i+lmorb2*j)]=beta; ////
 		k++;
-		(*C3Ji)[k+nsph*(j+lmorb2*i)]=creal(zeta);
-		(*C3Ji)[k+nsph*(i+lmorb2*j)]=creal(zeta); ////
+		(*C3Ji)[k+nsph*(j+lmorb2*i)]=zeta;
+		(*C3Ji)[k+nsph*(i+lmorb2*j)]=zeta; ////
 		k++;
 	      }	    
 	    }
@@ -304,10 +304,10 @@ void _GETC3J(int id,int lmax,char *str1,char *str2, int lmorb1,int lmorb2,int *l
     }
   }
   
-  MPI_Bcast(&((*C3Kj)[0]),lmorb1*lmorb2*nsph,MPI_DOUBLE,0,MPI_COMM_WORLD);
-  MPI_Bcast(&((*C3Ki)[0]),lmorb1*lmorb2*nsph,MPI_DOUBLE,0,MPI_COMM_WORLD);
-  MPI_Bcast(&((*C3Jj)[0]),lmorb1*lmorb1*nsph,MPI_DOUBLE,1,MPI_COMM_WORLD);
-  MPI_Bcast(&((*C3Ji)[0]),lmorb2*lmorb2*nsph,MPI_DOUBLE,1,MPI_COMM_WORLD);
+  MPI_Bcast(&((*C3Kj)[0]),lmorb1*lmorb2*nsph,MPI_DOUBLE_COMPLEX,0,MPI_COMM_WORLD);
+  MPI_Bcast(&((*C3Ki)[0]),lmorb1*lmorb2*nsph,MPI_DOUBLE_COMPLEX,0,MPI_COMM_WORLD);
+  MPI_Bcast(&((*C3Jj)[0]),lmorb1*lmorb1*nsph,MPI_DOUBLE_COMPLEX,1,MPI_COMM_WORLD);
+  MPI_Bcast(&((*C3Ji)[0]),lmorb2*lmorb2*nsph,MPI_DOUBLE_COMPLEX,1,MPI_COMM_WORLD);
 
   free(la);
   free(ma);  

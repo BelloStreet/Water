@@ -123,7 +123,7 @@ void GRID::_HH1(double Zcharge,int id,int numprocs,int norb,orbitals *p,cmplx *N
       lf=floor(j/nbreak);
       j1=j-nbreak*lf;
       if(li==lf){
-	A[j+lmorb*nbreak*(i+id*local_n)]=creal(KE[j1+nbreak*i1+nbreak*nbreak*p[4].lo[li]]);
+	A[j+lmorb*nbreak*(i+id*local_n)]=creal(KE[j1+nbreak*i1+nbreak*nbreak*p[2].lo[li]]);
       }
       for(io=0;io<norb;io++){
 	A[j+lmorb*nbreak*(i+id*local_n)]=A[j+lmorb*nbreak*(i+id*local_n)]+2.0*creal(p[io].J[j+lmorb*nbreak*(i+id*local_n)])-creal(p[io].K[j+lmorb*nbreak*(i+id*local_n)]);
@@ -470,8 +470,8 @@ void GRID::_NE(int id,int numprocs,int lmerb,int *le,double *C3j,double *C3i,cmp
 	  else{
 	    for(l=0;l<nsph;l++){
 	      if(la[l]>=abs(le[li]-le[lf]) && la[l]<=le[li]+le[lf]){ //esto es nuevo
-		z2=4.0*M_PI*pow(-1,ma[l])*In[k][i1][la[l]]*C3i[l+nsph*(lf+lmerb*li)]/(2.0*la[l]+1.0);
-		z1=z1+z2*_Ylm(la[l],ma[l],theta,phi);
+		z2=4.0*M_PI*In[k][i1][la[l]]*C3j[l+nsph*(lf+lmerb*li)]/(2.0*la[l]+1.0);
+		z1=z1+z2*conj(_Ylm(la[l],ma[l],theta,phi));
 	      }
 	    }
 	  }
@@ -502,7 +502,7 @@ void GRID::_GETORB(char *orbfile,char *symm,char *irrep,int lo,char *str1,int *l
   double *orb,*x,*y,*z,*xi,*yi,*zi,*wi,theta,phi;
   cmplx beta;
   char str[10],sto[5],fichero[25]="angular_";
-  const int n=974; //el que mejor funciona es 194
+  const int n=2354; //el que mejor funciona es 194
   nchannels=0;
   l=(int)(floor(nmlps/2));
   _genlm(symm,irrep,l);
@@ -532,7 +532,7 @@ void GRID::_GETORB(char *orbfile,char *symm,char *irrep,int lo,char *str1,int *l
   yi=(double*)calloc(n,sizeof(double));
   zi=(double*)calloc(n,sizeof(double));
   wi=(double*)calloc(n,sizeof(double));
-  ld0974(xi,yi,zi,wi);
+  ld2354(xi,yi,zi,wi);
   ngrid=n*nbreak;
   orb=(double*)calloc(ngrid,sizeof(double));
   x=(double*)calloc(ngrid,sizeof(double));
@@ -572,7 +572,20 @@ void GRID::_GETORB(char *orbfile,char *symm,char *irrep,int lo,char *str1,int *l
   }
   printf("%s %d%s Norm=% .8le % .8le\n",symm,lo+1,irrep,creal(beta),cimag(beta));
   fflush(stdout);
-  
+  for(l=0;l<nchannels;l++){
+    for(i=0;i<nbreak;i++){
+      (*cilm)[i+nbreak*l]=(*cilm)[i+nbreak*l]/cpow(beta,0.5);
+    }
+  }
+  beta=0.0+0.0*I;
+  for(i=0;i<nbreak;i++){
+    for(l=0;l<nchannels;l++){
+      beta=beta+((*cilm)[i+nbreak*l])*conj((*cilm)[i+nbreak*l]);
+    }
+  }
+  printf("%s %d%s Norm=% .8le % .8le\n",symm,lo+1,irrep,creal(beta),cimag(beta));
+  fflush(stdout);
+
   // /////esto es para pintar orbitales en el eje z make sense only for diatomics
   // strcpy(fichero,"orbital_");
   // sprintf(sto,"%d",lo);

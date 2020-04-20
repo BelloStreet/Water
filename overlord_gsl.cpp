@@ -15,8 +15,8 @@ int main(int argc,char **argv){
   int i,j,norb,l,tag=99;
   int id=0,numprocs,root=0,nbas,lamax,lmax,io,*lo=NULL,*mo=NULL,lmorb;
   int *la,*ma,*le,*me,*no,lmerb=0;
-  double z1,z2,z3,z4,*CKj,*CKi,*CJj,*CJi,start_time,end_time;
-  cmplx *Xi,*Wi,*TXX,*TIXX,*H1,*cilm=NULL,*K,*J,*NE;
+  double z1,z2,z3,z4,start_time,end_time;
+  cmplx *Xi,*Wi,*TXX,*TIXX,*H1,*cilm=NULL,*K,*J,*NE,*CKj,*CKi,*CJj,*CJi;
   char command[150],fichero[50],fileel[50]="angular_";
   char symm[5]="ylm",irrep[5]="ylm",str[2]="y",**irreps,strs[2]="c";
   orbitals od[5];  

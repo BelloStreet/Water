@@ -10,10 +10,10 @@ typedef _Complex double cmplx;
 cmplx _Ylm(int l,int m,double theta,double phi);
 double _Blm(char *type,int l,int m,double theta,double phi);
 int main(void){
-  int i,j,k,l,j1=3,j2=3,j3=1,m1=-1,m2=1,m3=0;
+  int i,j,k,l,j1=2,j2=1,j3=1,m1=1,m2=0,m3=-1;
   double y,z,*xi,*yi,*zi,*wi,phi,theta;
-  cmplx beta;
-  char str1[3]="c",str2[3]="c";
+  cmplx beta,z1,z2,z3,z4;
+  char str1[3]="s",str2[3]="c";
   const int n=974;
   xi=(double*)calloc(n,sizeof(double));
   yi=(double*)calloc(n,sizeof(double));
@@ -28,24 +28,21 @@ int main(void){
     beta=beta+wi[j]*_Blm(str1,j1,m1,theta,phi)*_Blm(str2,j2,m2,theta,phi)*_Ylm(j3,m3,theta,phi);
   }
   beta=4.0*M_PI*beta;
-  y=gsl_sf_coupling_3j(2*j1,2*j2,2*j3,2*m1,2*m2,2*m3)*gsl_sf_coupling_3j(2*j1,2*j2,2*j3,0,0,0);
-  y=y*sqrt((2.0*j1+1.0)*(2.0*j2+1.0)*(2.0*j3+1.0)/(4.0*M_PI)); 
-  printf("% .8le % .8le % .8le\n",creal(beta),cimag(beta),y);
-  k=0;
-  for(j=0;j<11;j++){
-    for(i=0;i<=j;i++){
-      if(i==0){
-	printf("%d %d %d\n",k,j,i);
-	k++;
-      }
-      else{
-	printf("%d %d %d\n",k,j,i);
-	k++;
-	printf("%d %d %d\n",k,j,-i);
-	k++;
-      }
-    }
-  }
+  //  y=gsl_sf_coupling_3j(2*j1,2*j2,2*j3,2*m1,2*m2,2*m3)*gsl_sf_coupling_3j(2*j1,2*j2,2*j3,0,0,0);
+  //  y=y*sqrt((2.0*j1+1.0)*(2.0*j2+1.0)*(2.0*j3+1.0)/(4.0*M_PI)); 
+
+  z1=gsl_sf_coupling_3j(2*j1,2*j2,2*j3,2*m1,2*m2,2*m3)*gsl_sf_coupling_3j(2*j1,2*j2,2*j3,0,0,0);
+  z1=z1*sqrt((2.0*j1+1.0)*(2.0*j2+1.0)*(2.0*j3+1.0)/(4.0*M_PI)); 
+  z2=gsl_sf_coupling_3j(2*j1,2*j2,2*j3,2*m1,-2*m2,2*m3)*gsl_sf_coupling_3j(2*j1,2*j2,2*j3,0,0,0);
+  z2=z2*sqrt((2.0*j1+1.0)*(2.0*j2+1.0)*(2.0*j3+1.0)/(4.0*M_PI)); 
+  z3=gsl_sf_coupling_3j(2*j1,2*j2,2*j3,-2*m1,2*m2,2*m3)*gsl_sf_coupling_3j(2*j1,2*j2,2*j3,0,0,0);
+  z3=z3*sqrt((2.0*j1+1.0)*(2.0*j2+1.0)*(2.0*j3+1.0)/(4.0*M_PI)); 
+  z4=gsl_sf_coupling_3j(2*j1,2*j2,2*j3,-2*m1,-2*m2,2*m3)*gsl_sf_coupling_3j(2*j1,2*j2,2*j3,0,0,0);
+  z4=z4*sqrt((2.0*j1+1.0)*(2.0*j2+1.0)*(2.0*j3+1.0)/(4.0*M_PI)); 
+
+  y=0.5*creal(z1+z2-z3-z4);
+  
+  printf("% .8le % .8le % .8le % .8le\n",creal(beta),cimag(beta),0.5*creal(z1+z2-z3-z4),0.5*cimag(z1+z2-z3-z4));
   
   free(xi);
   free(yi);
@@ -59,7 +56,7 @@ cmplx _Ylm(int l,int m,double theta,double phi){
   double y;
   cmplx c1,c2,c3;
   m1=abs(m);
-  y=pow(-1.0,m)*gsl_sf_legendre_sphPlm(l,m1,cos(theta));
+  y=gsl_sf_legendre_sphPlm(l,m1,cos(theta));
   c1=cos(m1*phi)+sin(m1*phi)*I;
   if(m>=0){
     c3=c1*y;

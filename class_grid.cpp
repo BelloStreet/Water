@@ -223,7 +223,7 @@ cmplx GRID::_PSSN(int i,int j,int v){
   return beta;
 }
 
-void GRID::_KO(int id,int numprocs,int lmerb,int *le,int lmorb,int *lo,cmplx *cilm,double *C3j,double *C3i,cmplx *K){
+void GRID::_KO(int id,int numprocs,int lmerb,int *le,int lmorb,int *lo,cmplx *cilm,cmplx *C3j,cmplx *C3i,cmplx *K){
   int i,j,k,l,nsph,i1,i2,j1,j2,l1,l2,m1,m2,li,lf,local_n;
   int lmax,nchannels,*la,*ma;
   double start_time,end_time;
@@ -292,7 +292,7 @@ void GRID::_KO(int id,int numprocs,int lmerb,int *le,int lmorb,int *lo,cmplx *ci
   free(ma);
 }
 
-void GRID::_JO(int id,int numprocs,int lmerb,int *le,int lmorb,int *lo,cmplx *cilm,double *C3j,double *C3i,cmplx *J){
+void GRID::_JO(int id,int numprocs,int lmerb,int *le,int lmorb,int *lo,cmplx *cilm,cmplx *C3j,cmplx *C3i,cmplx *J){
   int i,j,k,l,nsph,i1,i2,j1,j2,l1,l2,m1,m2,li,lf,local_n;
   int lmax,nchannels,*la,*ma;
   double start_time,end_time;
@@ -367,7 +367,7 @@ void GRID::_JO(int id,int numprocs,int lmerb,int *le,int lmorb,int *lo,cmplx *ci
 }
 
 
-void GRID::_NE(int id,int numprocs,int lmerb,int *le,double *C3j,double *C3i,cmplx *NE){
+void GRID::_NE(int id,int numprocs,int lmerb,int *le,cmplx *C3j,cmplx *C3i,cmplx *NE){
   FILE *file;
   int i,j,k,l,nsph,i1,i2,j1,j2,l1,l2,m1,m2,li,lf,local_n;
   int lmax,nchannels,*la,*ma,ncent,*Z;
