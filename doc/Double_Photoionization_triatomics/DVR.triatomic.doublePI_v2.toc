@@ -1,0 +1,18 @@
+\contentsline {title}{ Double photoionization of a triatomic molecule treating two active electrons: DVR and orbital basis }{1}{}
+\contentsline {abstract}{Abstract}{1}{}
+\tocdepth@munge 
+\contentsline {section}{\numberline {}Contents}{1}{}
+\tocdepth@restore 
+\contentsline {section}{\numberline {I}Formulation of the problem for two active electrons in a single center DVR representation}{1}{}
+\contentsline {section}{\numberline {II}Orbital basis in place of the DVR}{2}{}
+\contentsline {subsection}{\numberline {A}Nonspherical orbital basis: Method 1 requiring diagonalization of full one-body FEM-DVR Hamiltonian}{2}{}
+\contentsline {subsection}{\numberline {B}Nonspherical orbital basis: Method 2 using eigenvectors of each $\ell ,m$ block of the one-body Hamiltonian}{3}{}
+\contentsline {section}{\numberline {III}Hamiltonian matrix elements and their transformation to the orbital basis}{4}{}
+\contentsline {subsection}{\numberline {A}Kinetic energy:}{4}{}
+\contentsline {subsection}{\numberline {B}Nuclear attraction potential}{4}{}
+\contentsline {subsection}{\numberline {C}Two-electron integrals}{5}{}
+\contentsline {subsubsection}{\numberline {1}$\left ( 2 \mathaccentV {hat}05E{J}_o - \mathaccentV {hat}05E{K}_o \right )$}{6}{}
+\appendix 
+\contentsline {section}{\numberline {A}Identities involving angular momentum}{6}{}
+\contentsline {section}{\numberline {B}Other identies}{7}{}
+\contentsline {section}{\numberline {}References}{7}{}
