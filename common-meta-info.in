@@ -1,0 +1,3 @@
+#This file is the common meta data for all modules within the entire project.
+
+include( "${CMAKE_CURRENT_SOURCE_DIR}/project-meta-info.in")

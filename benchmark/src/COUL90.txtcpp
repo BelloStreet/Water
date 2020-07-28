@@ -1,0 +1,45 @@
+#include <complex>
+#include <iostream>
+#include <vector>
+
+#include "COUL90.H"
+#include "FEMDVR.H"
+
+COUL90::COUL90(const int &a_Zresidual, const unsigned int &a_lmax,
+               const double a_k, const unsigned int &a_Lndvr,
+               const unsigned int &a_Rndvr, const unsigned int &a_Nelem)
+    : FEMDVR(a_Lndvr, a_Rndvr, a_Nelem) {
+
+  m_lmax = a_lmax;
+  m_k = a_k;
+  m_reta = -a_Zresidual / a_k;
+  double *fc = new double[a_lmax];
+  double *gc = new double[a_lmax];
+  double *fcp = new double[a_lmax];
+  double *gcp = new double[a_lmax];
+  int info = 0, kdn = 0;
+  double xlmin = 0.0;
+  std::vector<std::vector<std::complex<double>>> coulexp;
+  for (int i = 1; i < getNbas(); ++i) {
+    double rval = m_k * m_points[i].real();
+    COUL90_(&rval, &m_reta, &xlmin, &m_lmax, fc, gc, fcp, gcp, &kdn, &info);
+    for (int lval = 0; lval < m_lmax; ++lval) {
+      m_coulexp[i].push_back(fc[lval] * sqrt(m_weights[i]) / m_k);
+    }
+  }
+}
+
+std::vector<std::vector<std::complex<double>>> COUL90::coulombDVR() {
+  return m_coulexp;
+}
+
+/* void COUL90::orbDVR() const; */
+/* { */
+
+/* } */
+
+/* void COUL90::plotCoulomb() const; */
+/* { */
+
+/* } */
+

@@ -1,0 +1,8 @@
+
+lobatto weight outside loop element * a_lobattoQuad->getDVROrder() - element - 1
+
+lobatto inside dvr loop element * a_lobattoQuad->getDVROrder() + dvr - element - 1
+
+radau weight outside loop (m_Nelem - 1) * a_lobattoQuad->getDVROrder() - m_Nelem
+
+radau inside dvr loop (m_Nelem - 1) * a_radauQuad->getDVROrder() + dvr

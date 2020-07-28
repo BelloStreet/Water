@@ -1,0 +1,8 @@
+
+set( project_version 0.0.1 )
+
+# The description of the root-project
+set( project_description "Implemention of a Exterior Complex Scaled FEM-DVR grid
+    for quantum scattering")
+
+set( project_homepage "https://github.com/zstreeter/quantumScattering")
