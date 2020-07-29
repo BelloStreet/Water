@@ -6,8 +6,8 @@
 
 AngularGrid::AngularGrid(const unsigned int &a_lmax,
                          const unsigned int &a_angular_order) {
-  m_angular_order = a_angular_order;
   m_lmax = a_lmax;
+  m_angular_order = a_angular_order;
 
   /* Lebedev Quadrature */
   m_angular_x = std::make_unique<double[]>(m_angular_order);
@@ -18,13 +18,12 @@ AngularGrid::AngularGrid(const unsigned int &a_lmax,
          m_angular_weight.get());
   // the number in the function's name has to be the order passed!
 
-  int l_tmp = (int)(floor(a_lmax) / 2);
-  std::cout << l_tmp << "\n";
-  m_num_channels = (l_tmp - 1) * (l_tmp + 1) + 1;
-  m_quantum_number_l = std::make_unique<int[]>((l_tmp - 1) * (l_tmp + 1) + 1);
-  m_quantum_number_m = std::make_unique<int[]>((l_tmp - 1) * (l_tmp + 1) + 1);
+  /* Generating lm pairs for grid lmax passed in */
+  m_num_channels = (m_lmax - 1) * (m_lmax + 1) + 1;
+  m_quantum_number_l = std::make_unique<int[]>((m_lmax - 1) * (m_lmax + 1) + 1);
+  m_quantum_number_m = std::make_unique<int[]>((m_lmax - 1) * (m_lmax + 1) + 1);
   int k = 0;
-  for (int i = 0; i < l_tmp; ++i) {
+  for (int i = 0; i < m_lmax; ++i) {
     for (int j = 0; j < i; ++j) {
       if (i == 0) {
         m_quantum_number_l[k] = i;

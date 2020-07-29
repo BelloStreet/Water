@@ -38,15 +38,45 @@ public:
   /// Getter for laplacian.
   std::complex<double> getLaplacian(int index) const;
 
-  /// Get number of basis functions
-  size_t &getNbas();
-  /* const unsigned int &getNbas(); */
+  /// Getter for the real boundaries.
+  /* TODO::Must change the function prototype once correct for boundary logic */
+  std::complex<double> getRealBoundary(int index) const;
+
+  /// Get the Lobotto order used
+  size_t getLobattoOrder() const;
+
+  /// Get the Radau order used. This is set to zero for real grid.
+  size_t getRaduaOrder() const;
+
+  /// Get the number of elements
+  size_t getNElements() const;
+
+  /// Get number of total basis functions, including complex contour if present.
+  size_t getNbas() const;
+
+  /// Get number of real basis functions
+  size_t getNRealbas() const;
+
+  /// Get R0: the point where the grid is complex scaled.
+  /// This point is set to zero if the grid is completely real.
+  std::complex<double> getR0() const;
+
+  /// Get the scaling factor alpha used in the radau grid mappings.
+  double getAlphaRad() const;
+
+  /// Get the angle used to rotate by into the complex plane.
+  double getTheta() const;
+
+  /// Get the complex rotated factor.
+  std::complex<double> getEit() const;
 
   void print() const;
 
 private:
-  unsigned int m_Nelem;
-  size_t m_Nbas;
+  unsigned int m_Lobatto_order, m_Radau_order, m_Nelem, m_R0_index;
+  size_t m_NRealbas, m_Nbas;
+  double m_alphaRad, m_theta;
+  std::complex<double> m_R0, m_eit;
   /* TODO:Either get rid of bounds variables or make them pointers */
   std::vector<std::complex<double>> m_realbounds, m_complexbounds;
   std::unique_ptr<std::complex<double>[]> m_points, m_weights, m_laplacian;

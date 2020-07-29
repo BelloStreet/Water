@@ -5,15 +5,11 @@
 #include <complex>
 
 #include "FEMDVR.hpp"
-#include "Global_DataTypes.hpp"
-#include "MOPartialWaveRepresentation.hpp"
 
 class Toperator {
 public:
-  /// General Hamiltonian
-  /// There should be a constructor for a bound state Hamiltonian.
-  Toperator(std::shared_ptr<FEMDVR> a_femdvr_grid,
-            std::shared_ptr<AngularGrid> a_angular_grid);
+  /// Toperator: $T = \Del^2 + \frac{l(l+1)}{2x^2}$
+  Toperator(std::shared_ptr<FEMDVR> a_femdvr_grid, const int &a_lmax_times_2);
 
   /// Destructor
   ~Toperator();
@@ -22,6 +18,7 @@ public:
   std::complex<double> getTXX(int index) const;
 
   /// Getter for the inverse of the T operator in the DVR representation.
+  /// Used in the poison solution for $\frac{1}{|r_1-r_2|}.
   std::complex<double> getTIXX(int index) const;
 
 private:

@@ -9,30 +9,31 @@
 int main(int argc, char **argv) {
 
   int ndvr = 5;
-  int nel = 3, lmax = 3;
+  int nel = 3, lmax = 0, lmax_times_2 = 3;
 
   auto LobattoQuad = std::make_unique<Quadrature_Lobatto>(ndvr);
-  auto realGrid = std::make_shared<FEMDVR>(std::move(LobattoQuad), nel);
-  auto angularGrid = std::make_shared<AngularGrid>(lmax);
+  auto RadauQuad = std::make_unique<Quadrature_Radau>(ndvr);
+  auto scatterGrid = std::make_shared<FEMDVR>(std::move(LobattoQuad),
+                                              std::move(RadauQuad), nel);
 
-  Toperator laplacian(realGrid, angularGrid);
+  Toperator T(scatterGrid, lmax_times_2);
 
-  for (int l = 0; l < angularGrid->getLmax(); ++l) {
-    for (int i = 0; i < realGrid->getNbas(); ++i) {
-      for (int j = 0; j < realGrid->getNbas(); ++j) {
-        std::cout << laplacian.getTIXX(l * realGrid->getNbas() *
-                                           realGrid->getNbas() +
-                                       i * realGrid->getNbas() + j)
+  for (int l = 0; l < lmax_times_2; ++l) {
+    for (int i = 0; i < scatterGrid->getNbas(); ++i) {
+      for (int j = 0; j < scatterGrid->getNbas(); ++j) {
+        std::cout << T.getTIXX(l * scatterGrid->getNbas() *
+                                   scatterGrid->getNbas() +
+                               i * scatterGrid->getNbas() + j)
                   << "\n";
       }
     }
   }
-  /* for (int l = 0; l < angularGrid->getLmax(); ++l) { */
-  /* for (int i = 0; i < realGrid->getNbas(); ++i) { */
-  /* std::cout << laplacian.getTXX(l * realGrid->getNbas() + */
-  /*                                  i * realGrid->getNbas() + i) */
-  /*           << "\n"; */
-  /* } */
+  /* for (int l = 0; l < lmax_times_2; ++l) { */
+  /*   for (int i = 0; i < scatterGrid->getNbas(); ++i) { */
+  /*     std::cout << T.getTXX(l * realGrid->getNbas() + */
+  /*     i * realGrid->getNbas() + i) */
+  /*     << "\n"; */
+  /*   } */
   /* } */
 
   return 0;
