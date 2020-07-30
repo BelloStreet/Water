@@ -1,6 +1,7 @@
 #include "../include/Joperator.hpp"
 #include <iostream>
 #include <mkl_lapacke.h>
+#include <mpi.h>
 
 Joperator::Joperator(std::shared_ptr<FEMDVR> a_femdvr_grid,
                      std::shared_ptr<AngularGrid> a_angular_grid) {

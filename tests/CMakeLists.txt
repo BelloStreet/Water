@@ -47,6 +47,9 @@ package_add_test(testMOPartialWaveRepresentation testMOPartialWaveRepresentation
 package_add_test(testToperator
   testToperator/testToperator.cpp)
 
+# MOPartialWaveRepresentation Test
+package_add_test(testJoperator testJoperator/testJoperator.cpp)
+
 # add_executable(mpi main.cpp mpi.cpp common.h)
 # add_executable(testParseMolden testParseMolden.cpp)
 # target_link_libraries(mpi PRIVATE MPI::MPI_CXX)
