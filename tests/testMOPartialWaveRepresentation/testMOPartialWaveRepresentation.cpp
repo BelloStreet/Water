@@ -21,13 +21,10 @@ int main(int argc, char **argv) {
   auto realGrid = std::make_shared<FEMDVR>(std::move(LobattoQuad), nel);
 
   auto angularGrid = std::make_shared<AngularGrid>();
-  std::cout << angularGrid->getNumChannels() << "\n";
-  std::cout << angularGrid->getLmax() << "\n";
-  for (int i = 0; i < angularGrid->getNumChannels(); ++i) {
-    std::cout << angularGrid->getQuantumNumberL(i) << "\n";
-  }
+  /* std::cout << angularGrid->getNumChannels() << "\n"; */
+  /* std::cout << angularGrid->getLmax() << "\n"; */
 
-  int which_MO = 1;
+  int which_MO = 2;
   MOPartialWaveRepresentation MOPWRep(realGrid, angularGrid, molecule,
                                       which_MO);
 
@@ -37,9 +34,6 @@ int main(int argc, char **argv) {
         MOPWRep.getPartialWaveRep(i) * conj(MOPWRep.getPartialWaveRep(i));
   }
   std::cout << check_norm << "\n";
-  for (int i = 0; i < MOPWRep.getNumChannels(); ++i) {
-    std::cout << MOPWRep.getQuantumNumberL(i) << "\n";
-  }
 
   return 0;
 }

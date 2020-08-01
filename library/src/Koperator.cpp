@@ -1,21 +1,21 @@
-#include "../include/Joperator.hpp"
+#include "../include/Koperator.hpp"
 #include <gsl/gsl_sf_legendre.h>
 #include <iostream>
 #include <mkl_lapacke.h>
 #include <mpi.h>
 
-Joperator::Joperator(std::shared_ptr<AngularGrid> a_angular_grid,
+Koperator::Koperator(std::shared_ptr<AngularGrid> a_angular_grid,
                      std::shared_ptr<MOPartialWaveRepresentation> a_ket_orbital,
                      std::shared_ptr<MOPartialWaveRepresentation> a_bra_orbital,
                      std::shared_ptr<Toperator> a_T) {}
 
-Joperator::~Joperator() {}
+Koperator::~Koperator() {}
 
-std::complex<double> Joperator::getJ(int index) const {
+std::complex<double> Koperator::getK(int index) const {
   return m_dvr_rep[index];
 }
 
-void Joperator::C3jBlm(std::shared_ptr<AngularGrid> a_angular_grid,
+void Koperator::C3jBlm(std::shared_ptr<AngularGrid> a_angular_grid,
                        const int &L, const int &M, const std::string &type1,
                        const int &l1, const int &m1, const std::string &type2,
                        const int &l2, const int &m2,
@@ -33,7 +33,7 @@ void Joperator::C3jBlm(std::shared_ptr<AngularGrid> a_angular_grid,
   }
 }
 
-std::complex<double> Joperator::Ylm(const int l, const int m,
+std::complex<double> Koperator::Ylm(const int l, const int m,
                                     const double theta, const double phi) {
   int m1 = abs(m);
   double y = gsl_sf_legendre_sphPlm(l, m1, cos(theta));
@@ -47,7 +47,7 @@ std::complex<double> Joperator::Ylm(const int l, const int m,
   return c3;
 }
 
-double Joperator::Blm(const std::string type, const int l, const int m,
+double Koperator::Blm(const std::string type, const int l, const int m,
                       const double theta, const double phi) {
   double value = 0.0, y = 0.0;
   int m1 = abs(m);

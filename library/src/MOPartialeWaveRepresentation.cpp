@@ -256,7 +256,6 @@ MOPartialWaveRepresentation::MOPartialWaveRepresentation(
     radial_basis[xgrid] = value;
   }
 
-  m_blm = std::make_unique<double[]>(m_num_channels);
   m_partial_wave_rep_orbital = std::make_unique<std::complex<double>[]>(
       a_femdvr_grid->getNbas() * m_num_channels);
   for (int channel = 0; channel < m_num_channels; ++channel) {
@@ -268,12 +267,10 @@ MOPartialWaveRepresentation::MOPartialWaveRepresentation(
         double theta = acos(a_angular_grid->getZ(angular_point));
         double phi = atan2(a_angular_grid->getY(angular_point),
                            a_angular_grid->getX(angular_point));
-        m_blm[channel] =
-            Blm(type, l0_vec[channel], m0_vec[channel], theta, phi);
         beta += sqrt(a_femdvr_grid->getWeight(radial_point).real()) *
                 a_angular_grid->getAngularWeight(angular_point) *
-                radial_basis[angular_point +
-                             a_angular_grid->getAngularOrder() * radial_point] *
+                radial_basis[radial_point * a_angular_grid->getAngularOrder() +
+                             angular_point] *
                 Blm(type, l0_vec[channel], m0_vec[channel], theta, phi) *
                 a_femdvr_grid->getPoint(radial_point).real();
       }
@@ -290,19 +287,15 @@ MOPartialWaveRepresentation::getPartialWaveRep(int index) const {
   return m_partial_wave_rep_orbital[index];
 }
 
-double MOPartialWaveRepresentation::getBLM(int index) const {
-  return m_blm[index];
-}
-
-unsigned int MOPartialWaveRepresentation::getNumChannels() const {
+size_t MOPartialWaveRepresentation::getNumChannels() const {
   return m_num_channels;
 }
 
-int MOPartialWaveRepresentation::getQuantumNumberL(int index) const {
+int MOPartialWaveRepresentation::getL(int index) const {
   return m_quantum_number_l[index];
 }
 
-int MOPartialWaveRepresentation::getQuantumNumberM(int index) const {
+int MOPartialWaveRepresentation::getM(int index) const {
   return m_quantum_number_m[index];
 }
 

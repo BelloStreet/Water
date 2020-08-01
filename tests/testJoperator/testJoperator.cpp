@@ -3,10 +3,9 @@
 #include "FEMDVR.hpp"
 #include "Global_DataTypes.hpp"
 #include "Toperator.hpp"
-#include "mxx/comm.hpp"
-#include "mxx/distribution.hpp"
+/* #include "mxx/comm.hpp" */
+/* #include "mxx/distribution.hpp" */
 
-#include <gtest/gtest-death-test.h>
 #include <iostream>
 #include <mpi.h>
 #include <stdio.h>

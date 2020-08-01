@@ -1,4 +1,3 @@
-// cSpell:disable
 #include "../include/FEMDVR.hpp"
 
 #include <cmath>
@@ -22,26 +21,26 @@ FEMDVR::FEMDVR(std::unique_ptr<Quadrature_Lobatto> a_lobattoQuad,
   /* TODO: Redudancy for the boundaries but these are here only for testing */
 
   /* Testing with Roger have to pass 13 elements for this test*/
-  /* m_realbounds.reserve(14); */
-  /* m_realbounds.push_back(0.0); */
-  /* m_realbounds.push_back(0.04); */
-  /* m_realbounds.push_back(0.1); */
-  /* m_realbounds.push_back(0.4); */
-  /* m_realbounds.push_back(0.75); */
-  /* m_realbounds.push_back(1.0); */
-  /* m_realbounds.push_back(1.3); */
-  /* m_realbounds.push_back(1.7782787998); */
-  /* m_realbounds.push_back(2.0); */
-  /* m_realbounds.push_back(4.0); */
-  /* m_realbounds.push_back(8.0); */
-  /* m_realbounds.push_back(12.0); */
-  /* m_realbounds.push_back(16.0); */
-  /* m_realbounds.push_back(20.0); */
+  m_realbounds.reserve(14);
+  m_realbounds.push_back(0.0);
+  m_realbounds.push_back(0.04);
+  m_realbounds.push_back(0.1);
+  m_realbounds.push_back(0.4);
+  m_realbounds.push_back(0.75);
+  m_realbounds.push_back(1.0);
+  m_realbounds.push_back(1.3);
+  m_realbounds.push_back(1.7782787998);
+  m_realbounds.push_back(2.0);
+  m_realbounds.push_back(4.0);
+  m_realbounds.push_back(8.0);
+  m_realbounds.push_back(12.0);
+  m_realbounds.push_back(16.0);
+  m_realbounds.push_back(20.0);
   // Default finite element spacing
-  m_realbounds.reserve(a_Nelem + 1);
+  /* m_realbounds.reserve(a_Nelem + 1); */
   m_complexbounds.reserve(a_Nelem + 1);
   for (int i = 0; i < a_Nelem + 1; ++i) {
-    m_realbounds.push_back(i * 10);
+    /* m_realbounds.push_back(i * 10); */
     /* m_realbounds.push_back(i * 0.05); */
   }
   /* TODO:Get rid of this... */
