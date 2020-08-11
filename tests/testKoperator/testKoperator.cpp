@@ -1,4 +1,4 @@
-#include "Joperator.hpp"
+#include "Koperator.hpp"
 #include "MoldenParser.hpp"
 /* #include "mxx/comm.hpp" */
 /* #include "mxx/distribution.hpp" */
@@ -26,19 +26,15 @@ int main(int argc, char **argv) {
   auto realGrid = std::make_shared<FEMDVR>(std::move(LobattoQuad), nel);
   auto angularGrid = std::make_shared<AngularGrid>();
 
-  /* std::cout << angularGrid->getNumChannels() << "\n"; */
-  /* for (int i = 0; i < angularGrid->getNumChannels(); ++i) { */
-  /* std::cout << angularGrid->getL(i) << "\n"; */
-  /* } */
   int first_a1 = 0, b2 = 2;
   auto first_A1 = std::make_shared<MOPartialWaveRepresentation>(
       realGrid, angularGrid, molecule, first_a1);
   auto B2 = std::make_shared<MOPartialWaveRepresentation>(realGrid, angularGrid,
                                                           molecule, b2);
 
-  auto T = std::make_shared<Toperator>(realGrid, 19);
+  auto T = std::make_shared<Toperator>(realGrid, lmax_times_2);
 
-  Joperator J(realGrid->getNbas(), angularGrid, B2, first_A1, T);
+  Koperator K(realGrid->getNbas(), angularGrid, first_A1, B2, T);
 
   return 0;
 }

@@ -11,7 +11,13 @@ public:
   /// The exchange operator takes in the angular grid, a ket and bra orbitals
   /// with the T operator that provides $T^{-1}$ for the $\frac{1}{|r_1-r_2|}$
   /// term.
-  Koperator(std::shared_ptr<AngularGrid> a_angular_grid,
+  Koperator(const size_t &Nbas, std::shared_ptr<AngularGrid> a_angular_grid,
+            std::shared_ptr<MOPartialWaveRepresentation> a_ket_orbital,
+            std::shared_ptr<MOPartialWaveRepresentation> a_bra_orbital,
+            std::shared_ptr<Toperator> a_T);
+
+  Koperator(const int &a_numprocs, const std::array<int, 2> &a_proccessor_xy,
+            const size_t &Nbas, std::shared_ptr<AngularGrid> a_angular_grid,
             std::shared_ptr<MOPartialWaveRepresentation> a_ket_orbital,
             std::shared_ptr<MOPartialWaveRepresentation> a_bra_orbital,
             std::shared_ptr<Toperator> a_T);

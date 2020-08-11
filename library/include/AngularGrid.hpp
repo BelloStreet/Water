@@ -33,11 +33,11 @@ public:
 
   /// Getter for the L quantum number generated for the angular grid's max
   /// angular momentum
-  int getQuantumNumberL(int index) const;
+  int getL(int index) const;
 
   /// Getter for the M quantum number generated for the angular grid's max
   /// angular momentum
-  int getQuantumNumberM(int index) const;
+  int getM(int index) const;
 
   unsigned int getAngularOrder() const;
 

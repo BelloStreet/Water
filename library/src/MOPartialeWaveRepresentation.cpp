@@ -13,25 +13,25 @@ MOPartialWaveRepresentation::MOPartialWaveRepresentation(
     const unsigned int &a_which_MO) {
 
   // Generating lm pairs for this irrep
-  int l = (int)(ceil(a_angular_grid->getLmax() / 2));
+  /* int l = floor(a_angular_grid->getLmax()/2); */
+  int l = a_angular_grid->getLmax();
   std::vector<int> l0_vec;
   std::vector<int> m0_vec;
   int m0, l0;
-  std::string type;
   if (a_molecule.pointgroup != "NAN") {
     if (a_molecule.pointgroup == "C2v") {
       if (a_molecule.molecular_orbitals[a_which_MO].symmetry == "A1") {
         m0 = 0;
-        type = "cosine";
+        m_type = "cosine";
       } else if (a_molecule.molecular_orbitals[a_which_MO].symmetry == "B1") {
         m0 = 1;
-        type = "cosine";
+        m_type = "cosine";
       } else if (a_molecule.molecular_orbitals[a_which_MO].symmetry == "B2") {
         m0 = 1;
-        type = "sine";
+        m_type = "sine";
       } else if (a_molecule.molecular_orbitals[a_which_MO].symmetry == "A2") {
         m0 = 2;
-        type = "sine";
+        m_type = "sine";
       }
       for (int i = 0; i < l; ++i) {
         for (int m = m0; m <= i; m = m + 2) {
@@ -43,35 +43,35 @@ MOPartialWaveRepresentation::MOPartialWaveRepresentation(
       if (a_molecule.molecular_orbitals[a_which_MO].symmetry == "Ag") {
         m0 = 0;
         l0 = 0;
-        type = "cosine";
+        m_type = "cosine";
       } else if (a_molecule.molecular_orbitals[a_which_MO].symmetry == "B3u") {
         m0 = 1;
         l0 = 1;
-        type = "cosine";
+        m_type = "cosine";
       } else if (a_molecule.molecular_orbitals[a_which_MO].symmetry == "B2u") {
         m0 = 1;
         l0 = 1;
-        type = "sine";
+        m_type = "sine";
       } else if (a_molecule.molecular_orbitals[a_which_MO].symmetry == "B1g") {
         m0 = 0;
         l0 = 0;
-        type = "sine";
+        m_type = "sine";
       } else if (a_molecule.molecular_orbitals[a_which_MO].symmetry == "B1u") {
         m0 = 0;
         l0 = 1;
-        type = "cosine";
+        m_type = "cosine";
       } else if (a_molecule.molecular_orbitals[a_which_MO].symmetry == "B2g") {
         m0 = 1;
         l0 = 0;
-        type = "cosine";
+        m_type = "cosine";
       } else if (a_molecule.molecular_orbitals[a_which_MO].symmetry == "B3g") {
         m0 = 1;
         l0 = 0;
-        type = "sine";
+        m_type = "sine";
       } else if (a_molecule.molecular_orbitals[a_which_MO].symmetry == "Au") {
         m0 = 0;
         l0 = 1;
-        type = "sine";
+        m_type = "sine";
       }
       for (int i = l0; i < l; i = i + 2) {
         for (int m = m0; m <= i; m = m + 2) {
@@ -87,16 +87,16 @@ MOPartialWaveRepresentation::MOPartialWaveRepresentation(
   } else {
     if (a_molecule.molecular_orbitals[a_which_MO].symmetry == "A1") {
       m0 = 0;
-      type = "cosine";
+      m_type = "cosine";
     } else if (a_molecule.molecular_orbitals[a_which_MO].symmetry == "B1") {
       m0 = 1;
-      type = "cosine";
+      m_type = "cosine";
     } else if (a_molecule.molecular_orbitals[a_which_MO].symmetry == "B2") {
       m0 = 1;
-      type = "sine";
+      m_type = "sine";
     } else if (a_molecule.molecular_orbitals[a_which_MO].symmetry == "A2") {
       m0 = 2;
-      type = "sine";
+      m_type = "sine";
     }
     for (int i = 0; i < l; ++i) {
       for (int m = m0; m <= i; m = m + 2) {
@@ -105,7 +105,7 @@ MOPartialWaveRepresentation::MOPartialWaveRepresentation(
       }
     }
   }
-  m_num_channels = l0_vec.size();
+  m_num_channels = m0_vec.size();
   m_quantum_number_l = std::make_unique<int[]>(m_num_channels);
   m_quantum_number_m = std::make_unique<int[]>(m_num_channels);
   for (int i = 0; i < m_num_channels; ++i) {
@@ -271,7 +271,7 @@ MOPartialWaveRepresentation::MOPartialWaveRepresentation(
                 a_angular_grid->getAngularWeight(angular_point) *
                 radial_basis[radial_point * a_angular_grid->getAngularOrder() +
                              angular_point] *
-                Blm(type, l0_vec[channel], m0_vec[channel], theta, phi) *
+                Blm(m_type, l0_vec[channel], m0_vec[channel], theta, phi) *
                 a_femdvr_grid->getPoint(radial_point).real();
       }
       m_partial_wave_rep_orbital[channel * a_femdvr_grid->getNbas() +
@@ -290,6 +290,8 @@ MOPartialWaveRepresentation::getPartialWaveRep(int index) const {
 size_t MOPartialWaveRepresentation::getNumChannels() const {
   return m_num_channels;
 }
+
+std::string MOPartialWaveRepresentation::getType() const { return m_type; }
 
 int MOPartialWaveRepresentation::getL(int index) const {
   return m_quantum_number_l[index];

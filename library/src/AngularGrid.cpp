@@ -6,7 +6,9 @@
 
 AngularGrid::AngularGrid(const unsigned int &a_lmax,
                          const unsigned int &a_angular_order) {
-  m_lmax = a_lmax;
+  /* TODO: Using smaller lmax for testing like Roger */
+  /* m_lmax = a_lmax; */
+  m_lmax = floor(a_lmax / 2);
   m_angular_order = a_angular_order;
 
   /* Lebedev Quadrature */
@@ -20,12 +22,12 @@ AngularGrid::AngularGrid(const unsigned int &a_lmax,
 
   /* Generating lm pairs for grid lmax passed in */
   m_num_channels = (m_lmax - 1) * (m_lmax + 1) + 1;
-  m_quantum_number_l = std::make_unique<int[]>((m_lmax - 1) * (m_lmax + 1) + 1);
-  m_quantum_number_m = std::make_unique<int[]>((m_lmax - 1) * (m_lmax + 1) + 1);
+  m_quantum_number_l = std::make_unique<int[]>(m_num_channels);
+  m_quantum_number_m = std::make_unique<int[]>(m_num_channels);
   int k = 0;
   for (int i = 0; i < m_lmax; ++i) {
-    for (int j = 0; j < i; ++j) {
-      if (i == 0) {
+    for (int j = 0; j <= i; ++j) {
+      if (j == 0) {
         m_quantum_number_l[k] = i;
         m_quantum_number_m[k] = j;
         k++;
@@ -57,12 +59,8 @@ unsigned int AngularGrid::getLmax() const { return m_lmax; }
 
 unsigned int AngularGrid::getNumChannels() const { return m_num_channels; }
 
-int AngularGrid::getQuantumNumberL(int index) const {
-  return m_quantum_number_l[index];
-}
+int AngularGrid::getL(int index) const { return m_quantum_number_l[index]; }
 
-int AngularGrid::getQuantumNumberM(int index) const {
-  return m_quantum_number_m[index];
-}
+int AngularGrid::getM(int index) const { return m_quantum_number_m[index]; }
 
 unsigned int AngularGrid::getAngularOrder() const { return m_angular_order; }

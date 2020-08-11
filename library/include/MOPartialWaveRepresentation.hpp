@@ -26,8 +26,11 @@ public:
   /// Getter for the Partial Wave Representation for given molecular orbital.
   std::complex<double> getPartialWaveRep(int index) const;
 
-  /// Getter for the number of channels generated from lmax
+  /// Getter for the number of channels generated from lmax.
   size_t getNumChannels() const;
+
+  /// Getter for the type of Blm, either sine or cosine like.
+  std::string getType() const;
 
   /// Getter for the L quantum number generated for this irrep.
   int getL(int index) const;
@@ -39,6 +42,7 @@ public:
 private:
   int m_lmax;
   size_t m_num_channels;
+  std::string m_type;
   std::unique_ptr<int[]> m_quantum_number_l, m_quantum_number_m;
   std::unique_ptr<std::complex<double>[]> m_partial_wave_rep_orbital;
   double Blm(const std::string, const int, const int, const double,
