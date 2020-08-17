@@ -36,13 +36,14 @@ FEMDVR::FEMDVR(std::unique_ptr<Quadrature_Lobatto> a_lobattoQuad,
   m_realbounds.push_back(12.0);
   m_realbounds.push_back(16.0);
   m_realbounds.push_back(20.0);
+
   // Default finite element spacing
   /* m_realbounds.reserve(a_Nelem + 1); */
   m_complexbounds.reserve(a_Nelem + 1);
-  for (int i = 0; i < a_Nelem + 1; ++i) {
-    /* m_realbounds.push_back(i * 10); */
-    /* m_realbounds.push_back(i * 0.05); */
-  }
+  /* for (int i = 0; i < a_Nelem + 1; ++i) { */
+  /* m_realbounds.push_back(i * 10); */
+  /* m_realbounds.push_back(i * 0.05); */
+  /* } */
   /* TODO:Get rid of this... */
   m_complexbounds = m_realbounds;
 
@@ -139,6 +140,7 @@ FEMDVR::FEMDVR(std::unique_ptr<Quadrature_Lobatto> a_lobattoQuad,
   }
 
   m_R0 = 0.0;
+  m_Radau_order = 0.0; // used to determine if complex tail was constructed
 
 } // end of constructor
 

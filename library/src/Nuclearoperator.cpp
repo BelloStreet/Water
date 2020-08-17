@@ -1,9 +1,9 @@
-#include "../include/Joperator.hpp"
+#include "../include/Nuclearoperator.hpp"
 #include <gsl/gsl_sf_legendre.h>
 #include <mkl_lapacke.h>
 #include <mpi.h>
 
-Joperator::Joperator(
+Nuclearoperator::Nuclearoperator(
     const size_t &a_Nbas, std::shared_ptr<AngularGrid> a_angular_grid,
     std::shared_ptr<MOPartialWaveRepresentation> a_ket_bra_orbital,
     std::shared_ptr<MOPartialWaveRepresentation> a_J_orbital,
@@ -183,7 +183,7 @@ Joperator::Joperator(
   }
 }
 
-Joperator::Joperator(
+Nuclearoperator::Nuclearoperator(
     const int &a_numprocs, const int &id, const size_t &a_Nbas,
     std::shared_ptr<AngularGrid> a_angular_grid,
     std::shared_ptr<MOPartialWaveRepresentation> a_ket_bra_orbital,
@@ -308,64 +308,53 @@ Joperator::Joperator(
     }
   }
 
-  int local_n = (int)floor(a_Nbas * ket_bra_num_channels / a_numprocs);
+  int local_n =
+      (int)floor(a_Nbas * a_ket_bra_orbital->getNumChannels() / a_numprocs);
 
   m_dvr_rep = std::make_unique<std::complex<double>[]>(
       a_Nbas * a_Nbas * ket_bra_num_channels * ket_bra_num_channels);
   for (int i = 0; i < local_n; ++i) {
-    int ket_l = floor((i + id * local_n) / a_Nbas);
+    int ket_l = floor(i + id * local_n / a_Nbas);
     int ket_r = i + id * local_n - a_Nbas * ket_l;
     for (int j = 0; j < a_Nbas * ket_bra_num_channels; ++j) {
       int bra_l = floor(j / a_Nbas);
       int bra_r = j - a_Nbas * bra_l;
       std::complex<double> tmp_J(1, 0);
       if (ket_r == bra_r) {
+        printf("id %d ket_l %d ket_r %d bra_l %d bra_r %d \n", id, ket_l, ket_r,
+               bra_l, bra_r);
+        /* for (int lk = 0; lk < a_Nbas * num_spherical_harmonics; ++lk) { */
+        /* int k = lk / num_spherical_harmonics; */
+        /* int L = lk % num_spherical_harmonics; */
         for (int k = 0; k < a_Nbas; ++k) {
           for (int L = 0; L < num_spherical_harmonics; ++L) {
+            /* printf("id %d L %d k %d ket_r %d \n", id, L, k, ket_r); */
             if (a_angular_grid->getL(L) >=
                     abs(a_ket_bra_orbital->getL(ket_l) -
                         a_ket_bra_orbital->getL(bra_l)) &&
                 a_angular_grid->getL(L) <= a_ket_bra_orbital->getL(ket_l) +
                                                a_ket_bra_orbital->getL(bra_l)) {
-              printf("la[l] %d le[li] %d le[lf] %d \n", a_angular_grid->getL(L),
-                     a_ket_bra_orbital->getL(ket_l),
-                     a_ket_bra_orbital->getL(bra_l));
               std::complex<double> tmp_1 =
                   4.0 * M_PI * pow(-1, a_angular_grid->getM(L)) *
                   a_T->getTIXX(a_angular_grid->getL(L) * a_Nbas * a_Nbas +
-                               ket_r * a_Nbas + k) /
+                               k * a_Nbas + ket_r) /
                   (2.0 * a_angular_grid->getL(L) + 1.0);
               std::complex<double> tmp_2 =
                   CJ_1[ket_l * ket_bra_num_channels * num_spherical_harmonics +
                        bra_l * num_spherical_harmonics + L];
-              printf("inverse %f \n",
-                     a_T->getTIXX(a_angular_grid->getL(L) * a_Nbas * a_Nbas +
-                                  ket_r * a_Nbas + k));
+              /* printf("z3 %f \n", tmp_2); */
               for (int l1 = 0; l1 < J_orbital_num_channels; ++l1) {
                 for (int l2 = 0; l2 < J_orbital_num_channels; ++l2) {
                   if (a_angular_grid->getL(L) >=
                           abs(a_J_orbital->getL(l1) - a_J_orbital->getL(l2)) &&
                       a_angular_grid->getL(L) <=
                           a_J_orbital->getL(l1) + a_J_orbital->getL(l2)) {
-                    std::complex<double> tmp_3 =
-                        CJ_2[l1 * J_orbital_num_channels *
-                                 num_spherical_harmonics +
-                             l2 * num_spherical_harmonics + L];
-                    std::complex<double> tmp_4 =
-                        a_J_orbital->getPartialWaveRep(l1 * a_Nbas + k) *
-                        a_J_orbital->getPartialWaveRep(l2 * a_Nbas + k);
-                    tmp_J += tmp_1 * tmp_2 * tmp_3 * tmp_4;
-                    /* tmp_J += tmp_1 * tmp_2 * */
-                    /*          CJ_2[l1 * J_orbital_num_channels * */
-                    /*                   num_spherical_harmonics + */
-                    /*               l2 * num_spherical_harmonics + L] *
-                     */
-                    /*          a_J_orbital->getPartialWaveRep(l1 *
-                     * a_Nbas + k)
-                     * * */
-                    /*          a_J_orbital->getPartialWaveRep(l2 *
-                     * a_Nbas + k);
-                     */
+                    tmp_J = tmp_1 * tmp_2 *
+                            CJ_2[l1 * J_orbital_num_channels *
+                                     num_spherical_harmonics +
+                                 l2 * num_spherical_harmonics + L] *
+                            a_J_orbital->getPartialWaveRep(l1 * a_Nbas + k) *
+                            a_J_orbital->getPartialWaveRep(l2 * a_Nbas + k);
                   }
                 }
               }
@@ -373,7 +362,6 @@ Joperator::Joperator(
           }
         }
       }
-      /* printf(" tmp_J %f \n", tmp_J); */
       m_dvr_rep[id * local_n * a_Nbas * ket_bra_num_channels +
                 i * a_Nbas * ket_bra_num_channels + j] = tmp_J;
     }
@@ -384,7 +372,7 @@ Joperator::Joperator(
   /*               MPI_COMM_WORLD); */
 }
 
-Joperator::Joperator(
+Nuclearoperator::Nuclearoperator(
     const int &a_numprocs, const std::array<int, 2> &a_proccessor_xy,
     const size_t &a_Nbas, std::shared_ptr<AngularGrid> a_angular_grid,
     std::shared_ptr<MOPartialWaveRepresentation> a_ket_bra_orbital,
@@ -558,18 +546,19 @@ Joperator::Joperator(
   }
 }
 
-Joperator::~Joperator() {}
+Nuclearoperator::~Nuclearoperator() {}
 
-std::complex<double> Joperator::getJ(int index) const {
+std::complex<double> Nuclearoperator::getJ(int index) const {
   return m_dvr_rep[index];
 }
 
-void Joperator::C3jBlm(std::shared_ptr<AngularGrid> a_angular_grid,
-                       const int &L, const int &M, const std::string &type1,
-                       const int &l1, const int &m1, const std::string &type2,
-                       const int &l2, const int &m2,
-                       std::complex<double> &a_zeta,
-                       std::complex<double> &a_beta) {
+void Nuclearoperator::C3jBlm(std::shared_ptr<AngularGrid> a_angular_grid,
+                             const int &L, const int &M,
+                             const std::string &type1, const int &l1,
+                             const int &m1, const std::string &type2,
+                             const int &l2, const int &m2,
+                             std::complex<double> &a_zeta,
+                             std::complex<double> &a_beta) {
   for (int i = 0; i < a_angular_grid->getAngularOrder(); i++) {
     double theta = acos(a_angular_grid->getZ(i));
     double phi = atan2(a_angular_grid->getY(i), a_angular_grid->getX(i));
@@ -584,8 +573,9 @@ void Joperator::C3jBlm(std::shared_ptr<AngularGrid> a_angular_grid,
   a_beta = 4.0 * M_PI * a_beta;
 }
 
-std::complex<double> Joperator::Ylm(const int l, const int m,
-                                    const double theta, const double phi) {
+std::complex<double> Nuclearoperator::Ylm(const int l, const int m,
+                                          const double theta,
+                                          const double phi) {
   int m1 = abs(m);
   double y = gsl_sf_legendre_sphPlm(l, m1, cos(theta));
   std::complex<double> c1 = std::polar(1.0, m1 * phi);
@@ -598,8 +588,8 @@ std::complex<double> Joperator::Ylm(const int l, const int m,
   return c3;
 }
 
-double Joperator::Blm(const std::string type, const int l, const int m,
-                      const double theta, const double phi) {
+double Nuclearoperator::Blm(const std::string type, const int l, const int m,
+                            const double theta, const double phi) {
   double value = 0.0, y = 0.0;
   int m1 = abs(m);
   if (m != 0) {

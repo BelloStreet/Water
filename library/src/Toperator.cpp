@@ -88,7 +88,7 @@ Toperator::Toperator(std::shared_ptr<FEMDVR> a_femdvr_grid,
         tmp_value =
             tmp_value +
             (pow(a_femdvr_grid->getPoint(i) * a_femdvr_grid->getPoint(j), l)) /
-                (pow(surface_term, 2 * l + 1));
+                (pow(surface_term, 2.0 * l + 1.0));
         m_inverse_dvr_rep[l * nbas * nbas + i * nbas + j] = tmp_value;
       }
     }
