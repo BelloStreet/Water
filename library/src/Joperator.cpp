@@ -1,5 +1,6 @@
 #include "../include/Joperator.hpp"
 #include <gsl/gsl_sf_legendre.h>
+#include <iostream>
 #include <mkl_lapacke.h>
 #include <mpi.h>
 
@@ -273,9 +274,9 @@ Joperator::Joperator(
                      a_J_orbital->getType(), a_J_orbital->getL(j),
                      a_J_orbital->getM(j), zeta, beta);
               CJ_2[i * J_orbital_num_channels * num_spherical_harmonics +
-                   j * num_spherical_harmonics + k] = zeta;
+                   j * num_spherical_harmonics + k] = beta;
               CJ_2[j * J_orbital_num_channels * num_spherical_harmonics +
-                   i * num_spherical_harmonics + k] = zeta;
+                   i * num_spherical_harmonics + k] = beta;
               k++;
             } else {
               C3jBlm(a_angular_grid, a_angular_grid->getL(k),
@@ -284,14 +285,14 @@ Joperator::Joperator(
                      a_J_orbital->getType(), a_J_orbital->getL(j),
                      a_J_orbital->getM(j), zeta, beta);
               CJ_2[i * J_orbital_num_channels * num_spherical_harmonics +
-                   j * num_spherical_harmonics + k] = zeta;
-              CJ_2[j * J_orbital_num_channels * num_spherical_harmonics +
-                   i * num_spherical_harmonics + k] = zeta;
-              k++;
-              CJ_2[i * J_orbital_num_channels * num_spherical_harmonics +
                    j * num_spherical_harmonics + k] = beta;
               CJ_2[j * J_orbital_num_channels * num_spherical_harmonics +
                    i * num_spherical_harmonics + k] = beta;
+              k++;
+              CJ_2[i * J_orbital_num_channels * num_spherical_harmonics +
+                   j * num_spherical_harmonics + k] = zeta;
+              CJ_2[j * J_orbital_num_channels * num_spherical_harmonics +
+                   i * num_spherical_harmonics + k] = zeta;
               k++;
             }
           }
@@ -318,7 +319,7 @@ Joperator::Joperator(
     for (int j = 0; j < a_Nbas * ket_bra_num_channels; ++j) {
       int bra_l = floor(j / a_Nbas);
       int bra_r = j - a_Nbas * bra_l;
-      std::complex<double> tmp_J(1, 0);
+      std::complex<double> tmp_J(0, 0);
       if (ket_r == bra_r) {
         for (int k = 0; k < a_Nbas; ++k) {
           for (int L = 0; L < num_spherical_harmonics; ++L) {
@@ -327,45 +328,25 @@ Joperator::Joperator(
                         a_ket_bra_orbital->getL(bra_l)) &&
                 a_angular_grid->getL(L) <= a_ket_bra_orbital->getL(ket_l) +
                                                a_ket_bra_orbital->getL(bra_l)) {
-              printf("la[l] %d le[li] %d le[lf] %d \n", a_angular_grid->getL(L),
-                     a_ket_bra_orbital->getL(ket_l),
-                     a_ket_bra_orbital->getL(bra_l));
-              std::complex<double> tmp_1 =
-                  4.0 * M_PI * pow(-1, a_angular_grid->getM(L)) *
-                  a_T->getTIXX(a_angular_grid->getL(L) * a_Nbas * a_Nbas +
-                               ket_r * a_Nbas + k) /
-                  (2.0 * a_angular_grid->getL(L) + 1.0);
-              std::complex<double> tmp_2 =
-                  CJ_1[ket_l * ket_bra_num_channels * num_spherical_harmonics +
-                       bra_l * num_spherical_harmonics + L];
-              printf("inverse %f \n",
-                     a_T->getTIXX(a_angular_grid->getL(L) * a_Nbas * a_Nbas +
-                                  ket_r * a_Nbas + k));
               for (int l1 = 0; l1 < J_orbital_num_channels; ++l1) {
                 for (int l2 = 0; l2 < J_orbital_num_channels; ++l2) {
                   if (a_angular_grid->getL(L) >=
                           abs(a_J_orbital->getL(l1) - a_J_orbital->getL(l2)) &&
                       a_angular_grid->getL(L) <=
                           a_J_orbital->getL(l1) + a_J_orbital->getL(l2)) {
-                    std::complex<double> tmp_3 =
+                    tmp_J +=
+                        4.0 * M_PI * pow(-1, a_angular_grid->getM(L)) *
+                        a_T->getTIXX(a_angular_grid->getL(L) * a_Nbas * a_Nbas +
+                                     ket_r * a_Nbas + k) /
+                        (2.0 * a_angular_grid->getL(L) + 1.0) *
+                        CJ_1[ket_l * ket_bra_num_channels *
+                                 num_spherical_harmonics +
+                             bra_l * num_spherical_harmonics + L] *
                         CJ_2[l1 * J_orbital_num_channels *
                                  num_spherical_harmonics +
-                             l2 * num_spherical_harmonics + L];
-                    std::complex<double> tmp_4 =
+                             l2 * num_spherical_harmonics + L] *
                         a_J_orbital->getPartialWaveRep(l1 * a_Nbas + k) *
                         a_J_orbital->getPartialWaveRep(l2 * a_Nbas + k);
-                    tmp_J += tmp_1 * tmp_2 * tmp_3 * tmp_4;
-                    /* tmp_J += tmp_1 * tmp_2 * */
-                    /*          CJ_2[l1 * J_orbital_num_channels * */
-                    /*                   num_spherical_harmonics + */
-                    /*               l2 * num_spherical_harmonics + L] *
-                     */
-                    /*          a_J_orbital->getPartialWaveRep(l1 *
-                     * a_Nbas + k)
-                     * * */
-                    /*          a_J_orbital->getPartialWaveRep(l2 *
-                     * a_Nbas + k);
-                     */
                   }
                 }
               }
@@ -373,15 +354,13 @@ Joperator::Joperator(
           }
         }
       }
-      /* printf(" tmp_J %f \n", tmp_J); */
       m_dvr_rep[id * local_n * a_Nbas * ket_bra_num_channels +
                 i * a_Nbas * ket_bra_num_channels + j] = tmp_J;
     }
   }
-  /* MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL, &m_dvr_rep, */
-  /*               local_n * a_Nbas * ket_bra_num_channels, MPI_DOUBLE_COMPLEX,
-   */
-  /*               MPI_COMM_WORLD); */
+  MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL, &m_dvr_rep,
+                local_n * a_Nbas * ket_bra_num_channels, MPI_DOUBLE_COMPLEX,
+                MPI_COMM_WORLD);
 }
 
 Joperator::Joperator(

@@ -7,7 +7,7 @@
 Koperator::Koperator(
     const size_t &Nbas, std::shared_ptr<AngularGrid> a_angular_grid,
     std::shared_ptr<MOPartialWaveRepresentation> a_ket_bra_orbital,
-    std::shared_ptr<MOPartialWaveRepresentation> a_J_orbital,
+    std::shared_ptr<MOPartialWaveRepresentation> a_K_orbital,
     std::shared_ptr<Toperator> a_T) {
 
   size_t grid_Lmax = a_angular_grid->getLmax();
@@ -15,46 +15,46 @@ Koperator::Koperator(
 
   /* Building the angular coefficients */
   size_t ket_bra_num_channels = a_ket_bra_orbital->getNumChannels();
-  size_t J_orbital_num_channels = a_J_orbital->getNumChannels();
+  size_t K_orbital_num_channels = a_K_orbital->getNumChannels();
   auto CJ_1 = std::make_unique<std::complex<double>[]>(
-      ket_bra_num_channels * J_orbital_num_channels * num_spherical_harmonics);
+      ket_bra_num_channels * K_orbital_num_channels * num_spherical_harmonics);
   auto CJ_2 = std::make_unique<std::complex<double>[]>(
-      ket_bra_num_channels * J_orbital_num_channels * num_spherical_harmonics);
+      ket_bra_num_channels * K_orbital_num_channels * num_spherical_harmonics);
   for (int i = 0; i < ket_bra_num_channels; ++i) {
-    for (int j = 0; j < J_orbital_num_channels; ++j) {
+    for (int j = 0; j < K_orbital_num_channels; ++j) {
       int k = 0;
       for (int lv = 0; lv < grid_Lmax; ++lv) {
         if (a_angular_grid->getL(k) >=
-                abs(a_ket_bra_orbital->getL(i) - a_J_orbital->getL(j)) &&
+                abs(a_ket_bra_orbital->getL(i) - a_K_orbital->getL(j)) &&
             a_angular_grid->getL(k) <=
-                a_ket_bra_orbital->getL(i) + a_J_orbital->getL(j)) {
+                a_ket_bra_orbital->getL(i) + a_K_orbital->getL(j)) {
           for (int mv = 0; mv <= lv; ++mv) {
             std::complex<double> zeta(0, 0), beta(0, 0);
             if (mv == 0) {
               C3jBlm(a_angular_grid, a_angular_grid->getL(k),
                      a_angular_grid->getM(k), a_ket_bra_orbital->getType(),
                      a_ket_bra_orbital->getL(i), a_ket_bra_orbital->getM(i),
-                     a_J_orbital->getType(), a_J_orbital->getL(j),
-                     a_J_orbital->getM(j), zeta, beta);
-              CJ_1[i * ket_bra_num_channels * num_spherical_harmonics +
+                     a_K_orbital->getType(), a_K_orbital->getL(j),
+                     a_K_orbital->getM(j), zeta, beta);
+              CJ_1[i * K_orbital_num_channels * num_spherical_harmonics +
                    j * num_spherical_harmonics + k] = zeta;
-              CJ_2[i * J_orbital_num_channels * num_spherical_harmonics +
+              CJ_2[i * K_orbital_num_channels * num_spherical_harmonics +
                    j * num_spherical_harmonics + k] = beta;
               k++;
             } else {
               C3jBlm(a_angular_grid, a_angular_grid->getL(k),
                      a_angular_grid->getM(k), a_ket_bra_orbital->getType(),
                      a_ket_bra_orbital->getL(i), a_ket_bra_orbital->getM(i),
-                     a_J_orbital->getType(), a_J_orbital->getL(j),
-                     a_J_orbital->getM(j), zeta, beta);
-              CJ_1[i * ket_bra_num_channels * num_spherical_harmonics +
+                     a_K_orbital->getType(), a_K_orbital->getL(j),
+                     a_K_orbital->getM(j), zeta, beta);
+              CJ_1[i * K_orbital_num_channels * num_spherical_harmonics +
                    j * num_spherical_harmonics + k] = zeta;
-              CJ_2[i * J_orbital_num_channels * num_spherical_harmonics +
+              CJ_2[i * K_orbital_num_channels * num_spherical_harmonics +
                    j * num_spherical_harmonics + k] = beta;
               k++;
-              CJ_1[i * ket_bra_num_channels * num_spherical_harmonics +
+              CJ_1[i * K_orbital_num_channels * num_spherical_harmonics +
                    j * num_spherical_harmonics + k] = beta;
-              CJ_2[i * J_orbital_num_channels * num_spherical_harmonics +
+              CJ_2[i * K_orbital_num_channels * num_spherical_harmonics +
                    j * num_spherical_harmonics + k] = zeta;
               k++;
             }
@@ -87,26 +87,26 @@ Koperator::Koperator(
             a_T->getTIXX(a_angular_grid->getL(L) * Nbas * Nbas + bra_r * Nbas +
                          ket_r) /
             (2.0 * a_angular_grid->getL(L) + 1.0);
-        for (int l1 = 0; l1 < J_orbital_num_channels; ++l1) {
+        for (int l1 = 0; l1 < K_orbital_num_channels; ++l1) {
           if (a_angular_grid->getL(L) >=
-                  abs(a_ket_bra_orbital->getL(ket_l) - a_J_orbital->getL(l1)) &&
+                  abs(a_ket_bra_orbital->getL(ket_l) - a_K_orbital->getL(l1)) &&
               a_angular_grid->getL(L) <=
-                  a_ket_bra_orbital->getL(ket_l) + a_J_orbital->getL(l1)) {
+                  a_ket_bra_orbital->getL(ket_l) + a_K_orbital->getL(l1)) {
             std::complex<double> tmp_2 =
-                CJ_1[ket_l * J_orbital_num_channels * num_spherical_harmonics +
+                CJ_1[ket_l * K_orbital_num_channels * num_spherical_harmonics +
                      l1 * num_spherical_harmonics + L];
-            for (int l2 = 0; l2 < J_orbital_num_channels; ++l2) {
+            for (int l2 = 0; l2 < K_orbital_num_channels; ++l2) {
               if (a_angular_grid->getL(L) >=
                       abs(a_ket_bra_orbital->getL(bra_l) -
-                          a_J_orbital->getL(l2)) &&
+                          a_K_orbital->getL(l2)) &&
                   a_angular_grid->getL(L) <=
-                      a_ket_bra_orbital->getL(bra_l) + a_J_orbital->getL(l2)) {
+                      a_ket_bra_orbital->getL(bra_l) + a_K_orbital->getL(l2)) {
                 tmp_J =
                     tmp_1 * tmp_2 *
-                    CJ_2[l1 * J_orbital_num_channels * num_spherical_harmonics +
+                    CJ_2[l1 * K_orbital_num_channels * num_spherical_harmonics +
                          l2 * num_spherical_harmonics + L];
-                a_J_orbital->getPartialWaveRep(l1 * Nbas + ket_r) *
-                    a_J_orbital->getPartialWaveRep(l2 * Nbas + bra_r);
+                a_K_orbital->getPartialWaveRep(l1 * Nbas + ket_r) *
+                    a_K_orbital->getPartialWaveRep(l2 * Nbas + bra_r);
               }
             }
           }
@@ -118,10 +118,10 @@ Koperator::Koperator(
 }
 
 Koperator::Koperator(
-    const int &a_numprocs, const std::array<int, 2> &a_proccessor_xy,
-    const size_t &Nbas, std::shared_ptr<AngularGrid> a_angular_grid,
+    const int &a_numprocs, const int &id, const size_t &a_Nbas,
+    std::shared_ptr<AngularGrid> a_angular_grid,
     std::shared_ptr<MOPartialWaveRepresentation> a_ket_bra_orbital,
-    std::shared_ptr<MOPartialWaveRepresentation> a_J_orbital,
+    std::shared_ptr<MOPartialWaveRepresentation> a_K_orbital,
     std::shared_ptr<Toperator> a_T) {
 
   size_t grid_Lmax = a_angular_grid->getLmax();
@@ -129,46 +129,171 @@ Koperator::Koperator(
 
   /* Building the angular coefficients */
   size_t ket_bra_num_channels = a_ket_bra_orbital->getNumChannels();
-  size_t J_orbital_num_channels = a_J_orbital->getNumChannels();
+  size_t K_orbital_num_channels = a_K_orbital->getNumChannels();
   auto CJ_1 = std::make_unique<std::complex<double>[]>(
-      ket_bra_num_channels * J_orbital_num_channels * num_spherical_harmonics);
+      ket_bra_num_channels * K_orbital_num_channels * num_spherical_harmonics);
   auto CJ_2 = std::make_unique<std::complex<double>[]>(
-      ket_bra_num_channels * J_orbital_num_channels * num_spherical_harmonics);
+      ket_bra_num_channels * K_orbital_num_channels * num_spherical_harmonics);
   for (int i = 0; i < ket_bra_num_channels; ++i) {
-    for (int j = 0; j < J_orbital_num_channels; ++j) {
+    for (int j = 0; j < K_orbital_num_channels; ++j) {
       int k = 0;
       for (int lv = 0; lv < grid_Lmax; ++lv) {
         if (a_angular_grid->getL(k) >=
-                abs(a_ket_bra_orbital->getL(i) - a_J_orbital->getL(j)) &&
+                abs(a_ket_bra_orbital->getL(i) - a_K_orbital->getL(j)) &&
             a_angular_grid->getL(k) <=
-                a_ket_bra_orbital->getL(i) + a_J_orbital->getL(j)) {
+                a_ket_bra_orbital->getL(i) + a_K_orbital->getL(j)) {
           for (int mv = 0; mv <= lv; ++mv) {
             std::complex<double> zeta(0, 0), beta(0, 0);
             if (mv == 0) {
               C3jBlm(a_angular_grid, a_angular_grid->getL(k),
                      a_angular_grid->getM(k), a_ket_bra_orbital->getType(),
                      a_ket_bra_orbital->getL(i), a_ket_bra_orbital->getM(i),
-                     a_J_orbital->getType(), a_J_orbital->getL(j),
-                     a_J_orbital->getM(j), zeta, beta);
-              CJ_1[i * ket_bra_num_channels * num_spherical_harmonics +
+                     a_K_orbital->getType(), a_K_orbital->getL(j),
+                     a_K_orbital->getM(j), zeta, beta);
+              CJ_1[i * K_orbital_num_channels * num_spherical_harmonics +
                    j * num_spherical_harmonics + k] = zeta;
-              CJ_2[i * J_orbital_num_channels * num_spherical_harmonics +
+              CJ_2[i * K_orbital_num_channels * num_spherical_harmonics +
                    j * num_spherical_harmonics + k] = beta;
               k++;
             } else {
               C3jBlm(a_angular_grid, a_angular_grid->getL(k),
                      a_angular_grid->getM(k), a_ket_bra_orbital->getType(),
                      a_ket_bra_orbital->getL(i), a_ket_bra_orbital->getM(i),
-                     a_J_orbital->getType(), a_J_orbital->getL(j),
-                     a_J_orbital->getM(j), zeta, beta);
+                     a_K_orbital->getType(), a_K_orbital->getL(j),
+                     a_K_orbital->getM(j), zeta, beta);
+              CJ_1[i * K_orbital_num_channels * num_spherical_harmonics +
+                   j * num_spherical_harmonics + k] = zeta;
+              CJ_2[i * K_orbital_num_channels * num_spherical_harmonics +
+                   j * num_spherical_harmonics + k] = beta;
+              k++;
+              CJ_1[i * K_orbital_num_channels * num_spherical_harmonics +
+                   j * num_spherical_harmonics + k] = beta;
+              CJ_2[i * K_orbital_num_channels * num_spherical_harmonics +
+                   j * num_spherical_harmonics + k] = zeta;
+              k++;
+            }
+          }
+        } else {
+          for (int mv = 0; mv <= lv; ++mv) {
+            if (mv == 0) {
+              k++;
+            } else {
+              k = k + 2;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  int local_n = (int)floor(a_Nbas * ket_bra_num_channels / a_numprocs);
+  if (id < a_Nbas * ket_bra_num_channels - a_numprocs * local_n) {
+    local_n++;
+  }
+
+  m_dvr_rep = std::make_unique<std::complex<double>[]>(
+      a_Nbas * a_Nbas * ket_bra_num_channels * ket_bra_num_channels);
+  for (int i = 0; i < local_n; ++i) {
+    int ket_l = floor((i + id * local_n) / a_Nbas);
+    int ket_r = i + id * local_n - a_Nbas * ket_l;
+    for (int j = 0; j < a_Nbas * ket_bra_num_channels; ++j) {
+      int bra_l = floor(j / a_Nbas);
+      int bra_r = j - a_Nbas * bra_l;
+      std::complex<double> tmp_K(0, 0);
+      for (int L = 0; L < num_spherical_harmonics; ++L) {
+        std::complex<double> tmp_1 =
+            4.0 * M_PI * pow(-1, a_angular_grid->getM(L)) *
+            a_T->getTIXX(a_angular_grid->getL(L) * a_Nbas * a_Nbas +
+                         ket_r * a_Nbas + bra_r) /
+            (2.0 * a_angular_grid->getL(L) + 1.0);
+        /* printf("inverse term %f i1 %d j1 %d \n", tmp_1.real(), ket_r, bra_r);
+         */
+        for (int l1 = 0; l1 < K_orbital_num_channels; ++l1) {
+          if (a_angular_grid->getL(L) >=
+                  abs(a_ket_bra_orbital->getL(ket_l) - a_K_orbital->getL(l1)) &&
+              a_angular_grid->getL(L) <=
+                  a_ket_bra_orbital->getL(ket_l) + a_K_orbital->getL(l1)) {
+            std::complex<double> tmp_2 =
+                CJ_1[ket_l * K_orbital_num_channels * num_spherical_harmonics +
+                     l1 * num_spherical_harmonics + L];
+            for (int l2 = 0; l2 < K_orbital_num_channels; ++l2) {
+              if (a_angular_grid->getL(L) >=
+                      abs(a_ket_bra_orbital->getL(bra_l) -
+                          a_K_orbital->getL(l2)) &&
+                  a_angular_grid->getL(L) <=
+                      a_ket_bra_orbital->getL(bra_l) + a_K_orbital->getL(l2)) {
+                tmp_K += tmp_1 * tmp_2 *
+                         CJ_2[bra_l * K_orbital_num_channels *
+                                  num_spherical_harmonics +
+                              l2 * num_spherical_harmonics + L] *
+                         a_K_orbital->getPartialWaveRep(l1 * a_Nbas + ket_r) *
+                         a_K_orbital->getPartialWaveRep(l2 * a_Nbas + bra_r);
+              }
+            }
+          }
+        }
+      }
+      m_dvr_rep[id * local_n * a_Nbas * ket_bra_num_channels +
+                i * a_Nbas * ket_bra_num_channels + j] = tmp_K;
+    }
+  }
+  MPI_Allgather(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL, &m_dvr_rep,
+                local_n * a_Nbas * ket_bra_num_channels, MPI_DOUBLE_COMPLEX,
+                MPI_COMM_WORLD);
+}
+
+Koperator::Koperator(
+    const int &a_numprocs, const std::array<int, 2> &a_proccessor_xy,
+    const size_t &Nbas, std::shared_ptr<AngularGrid> a_angular_grid,
+    std::shared_ptr<MOPartialWaveRepresentation> a_ket_bra_orbital,
+    std::shared_ptr<MOPartialWaveRepresentation> a_K_orbital,
+    std::shared_ptr<Toperator> a_T) {
+
+  size_t grid_Lmax = a_angular_grid->getLmax();
+  size_t num_spherical_harmonics = (grid_Lmax - 1) * (grid_Lmax + 1) + 1;
+
+  /* Building the angular coefficients */
+  size_t ket_bra_num_channels = a_ket_bra_orbital->getNumChannels();
+  size_t K_orbital_num_channels = a_K_orbital->getNumChannels();
+  auto CJ_1 = std::make_unique<std::complex<double>[]>(
+      ket_bra_num_channels * K_orbital_num_channels * num_spherical_harmonics);
+  auto CJ_2 = std::make_unique<std::complex<double>[]>(
+      ket_bra_num_channels * K_orbital_num_channels * num_spherical_harmonics);
+  for (int i = 0; i < ket_bra_num_channels; ++i) {
+    for (int j = 0; j < K_orbital_num_channels; ++j) {
+      int k = 0;
+      for (int lv = 0; lv < grid_Lmax; ++lv) {
+        if (a_angular_grid->getL(k) >=
+                abs(a_ket_bra_orbital->getL(i) - a_K_orbital->getL(j)) &&
+            a_angular_grid->getL(k) <=
+                a_ket_bra_orbital->getL(i) + a_K_orbital->getL(j)) {
+          for (int mv = 0; mv <= lv; ++mv) {
+            std::complex<double> zeta(0, 0), beta(0, 0);
+            if (mv == 0) {
+              C3jBlm(a_angular_grid, a_angular_grid->getL(k),
+                     a_angular_grid->getM(k), a_ket_bra_orbital->getType(),
+                     a_ket_bra_orbital->getL(i), a_ket_bra_orbital->getM(i),
+                     a_K_orbital->getType(), a_K_orbital->getL(j),
+                     a_K_orbital->getM(j), zeta, beta);
               CJ_1[i * ket_bra_num_channels * num_spherical_harmonics +
                    j * num_spherical_harmonics + k] = zeta;
-              CJ_2[i * J_orbital_num_channels * num_spherical_harmonics +
+              CJ_2[i * K_orbital_num_channels * num_spherical_harmonics +
+                   j * num_spherical_harmonics + k] = beta;
+              k++;
+            } else {
+              C3jBlm(a_angular_grid, a_angular_grid->getL(k),
+                     a_angular_grid->getM(k), a_ket_bra_orbital->getType(),
+                     a_ket_bra_orbital->getL(i), a_ket_bra_orbital->getM(i),
+                     a_K_orbital->getType(), a_K_orbital->getL(j),
+                     a_K_orbital->getM(j), zeta, beta);
+              CJ_1[i * ket_bra_num_channels * num_spherical_harmonics +
+                   j * num_spherical_harmonics + k] = zeta;
+              CJ_2[i * K_orbital_num_channels * num_spherical_harmonics +
                    j * num_spherical_harmonics + k] = beta;
               k++;
               CJ_1[i * ket_bra_num_channels * num_spherical_harmonics +
                    j * num_spherical_harmonics + k] = beta;
-              CJ_2[i * J_orbital_num_channels * num_spherical_harmonics +
+              CJ_2[i * K_orbital_num_channels * num_spherical_harmonics +
                    j * num_spherical_harmonics + k] = zeta;
               k++;
             }
@@ -199,23 +324,23 @@ Koperator::Koperator(
             a_T->getTIXX(a_angular_grid->getL(L) * Nbas * Nbas + bra_r * Nbas +
                          ket_r) /
             (2.0 * a_angular_grid->getL(L) + 1.0);
-        for (int l1 = 0; l1 < J_orbital_num_channels; ++l1) {
+        for (int l1 = 0; l1 < K_orbital_num_channels; ++l1) {
           if (a_angular_grid->getL(L) >=
-                  abs(a_ket_bra_orbital->getL(ket_l) - a_J_orbital->getL(l1)) &&
+                  abs(a_ket_bra_orbital->getL(ket_l) - a_K_orbital->getL(l1)) &&
               a_angular_grid->getL(L) <=
-                  a_ket_bra_orbital->getL(ket_l) + a_J_orbital->getL(l1)) {
+                  a_ket_bra_orbital->getL(ket_l) + a_K_orbital->getL(l1)) {
             std::complex<double> tmp_2 =
                 CJ_1[ket_l * ket_bra_num_channels * num_spherical_harmonics +
                      bra_l * num_spherical_harmonics + L];
-            for (int l2 = 0; l2 < J_orbital_num_channels; ++l2) {
+            for (int l2 = 0; l2 < K_orbital_num_channels; ++l2) {
               if (a_angular_grid->getL(L) >=
                       abs(a_ket_bra_orbital->getL(bra_l) -
-                          a_J_orbital->getL(l2)) &&
+                          a_K_orbital->getL(l2)) &&
                   a_angular_grid->getL(L) <=
-                      a_ket_bra_orbital->getL(bra_l) + a_J_orbital->getL(l2)) {
+                      a_ket_bra_orbital->getL(bra_l) + a_K_orbital->getL(l2)) {
                 tmp_J =
                     tmp_1 * tmp_2 *
-                    CJ_2[l1 * J_orbital_num_channels * num_spherical_harmonics +
+                    CJ_2[l1 * K_orbital_num_channels * num_spherical_harmonics +
                          l2 * num_spherical_harmonics + L];
                 a_ket_bra_orbital->getPartialWaveRep(l1 * Nbas + ket_r) *
                     a_ket_bra_orbital->getPartialWaveRep(l2 * Nbas + bra_r);
@@ -251,6 +376,8 @@ void Koperator::C3jBlm(std::shared_ptr<AngularGrid> a_angular_grid,
               Blm(type1, l1, m1, theta, phi) * Blm(type2, l2, m2, theta, phi) *
               Ylm(L, -M, theta, phi);
   }
+  a_zeta = 4.0 * M_PI * a_zeta;
+  a_beta = 4.0 * M_PI * a_beta;
 }
 
 std::complex<double> Koperator::Ylm(const int l, const int m,

@@ -10,6 +10,14 @@ int main(int argc, char **argv) {
   FEMDVR realGrid(std::move(real_lobattoQuad), nel);
   realGrid.print();
 
+  auto real_size = realGrid.getNbas();
+  for (int i = 0; i < real_size; ++i) {
+    for (int j = 0; j < real_size; ++j) {
+      std::cout << realGrid.getPoint(i) * realGrid.getPoint(j) << "  i" << i
+                << "  j" << j << "\n";
+    }
+  }
+
   std::cout << "\n";
   std::cout << "\n";
   std::cout << "\n";

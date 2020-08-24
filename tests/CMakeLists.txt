@@ -47,8 +47,11 @@ package_add_test(testMOPartialWaveRepresentation testMOPartialWaveRepresentation
 package_add_test(testToperator
   testToperator/testToperator.cpp)
 
-# MOPartialWaveRepresentation Test
+# J operator Test
 package_add_test(testJoperator testJoperator/testJoperator.cpp)
+
+# K operator Test
+package_add_test(testKoperator testKoperator/testKoperator.cpp)
 
 # add_executable(mpi main.cpp mpi.cpp common.h)
 # add_executable(testParseMolden testParseMolden.cpp)

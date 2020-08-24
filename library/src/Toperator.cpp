@@ -53,6 +53,7 @@ Toperator::Toperator(std::shared_ptr<FEMDVR> a_femdvr_grid,
   }
 
   std::complex<double> surface_term;
+  int num_elements = a_femdvr_grid->getNElements();
   int radau_order = a_femdvr_grid->getRaduaOrder();
   int real_Nbas = a_femdvr_grid->getNRealbas();
   double alpha = a_femdvr_grid->getAlphaRad();
@@ -61,30 +62,35 @@ Toperator::Toperator(std::shared_ptr<FEMDVR> a_femdvr_grid,
   if (a_femdvr_grid->getRaduaOrder() != 0) {
     surface_term = 2.0 * static_cast<double>(radau_order) * eit / alpha + R0;
   } else {
-    surface_term =
-        a_femdvr_grid->getRealBoundary(a_femdvr_grid->getNElements());
+    /* Bill says Frank is right! */
+    /* surface_term = */
+    /*     a_femdvr_grid->getRealBoundary(a_femdvr_grid->getNElements()); */
+    /* TODO: Roger surface_term is different from the commented Frank surface
+     * term */
+    surface_term = a_femdvr_grid->getPoint(real_Nbas - 1);
   }
 
   for (int l = 0; l < a_lmax_times_2; ++l) {
     for (int i = 0; i < nbas; ++i) {
       std::complex<double> tmp_i_factor =
           1.0 /
-          (a_femdvr_grid->getPoint(i) * sqrt(a_femdvr_grid->getWeight(i)));
+          (a_femdvr_grid->getPoint(i) * pow(a_femdvr_grid->getWeight(i), 0.5));
       if ((radau_order != 0) && i > (real_Nbas)) {
         tmp_i_factor *=
             exp(-alpha * conj(eit) * (a_femdvr_grid->getPoint(i) - R0));
       }
       for (int j = 0; j < nbas; ++j) {
         std::complex<double> tmp_j_factor =
-            1.0 /
-            (a_femdvr_grid->getPoint(j) * sqrt(a_femdvr_grid->getWeight(j)));
+            1.0 / (a_femdvr_grid->getPoint(j) *
+                   pow(a_femdvr_grid->getWeight(j), 0.5));
         if ((radau_order != 0) && j > (real_Nbas)) {
           tmp_j_factor *=
               exp(-alpha * conj(eit) * (a_femdvr_grid->getPoint(j) - R0));
         }
         std::complex<double> tmp_value =
-            (2.0 * l + 1) * m_inverse_dvr_rep[l * nbas * nbas + i * nbas + j] *
-            tmp_i_factor * tmp_j_factor;
+            (2.0 * l + 1.0) *
+            m_inverse_dvr_rep[l * nbas * nbas + i * nbas + j] * tmp_i_factor *
+            tmp_j_factor;
         tmp_value =
             tmp_value +
             (pow(a_femdvr_grid->getPoint(i) * a_femdvr_grid->getPoint(j), l)) /

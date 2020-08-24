@@ -91,6 +91,7 @@ ENDIF()
 
 find_package(MPI REQUIRED)
 find_package(GSL REQUIRED)
+# find_package(OpenMP REQUIRED)
 
 
 # include_directories(${MPI_INCLUDE_PATH})

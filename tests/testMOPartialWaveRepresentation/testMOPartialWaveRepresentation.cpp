@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
   molecule_t molecule;
   moldenParser(argv[1], molecule);
 
-  int ndvr = 10;
+  int ndvr = 5;
   int nel = 13;
 
   auto LobattoQuad = std::make_unique<Quadrature_Lobatto>(ndvr);
@@ -30,6 +30,7 @@ int main(int argc, char **argv) {
 
   std::complex<double> check_norm = 0.0;
   for (int i = 0; i < realGrid->getNbas() * MOPWRep.getNumChannels(); i++) {
+    printf("Partial Wave coefs %f \n", MOPWRep.getPartialWaveRep(i).real());
     check_norm +=
         MOPWRep.getPartialWaveRep(i) * conj(MOPWRep.getPartialWaveRep(i));
   }
