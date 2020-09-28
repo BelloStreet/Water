@@ -1,20 +1,20 @@
 #!/bin/bash
 
-#SBATCH --job-name=ElEnvi
+# #SBATCH --job-name=ElEnvia
+# #SBATCH --partition=lr3
+# #SBATCH --qos=condo_axl
+# #SBATCH --account=lr_axl
+# #SBATCH --nodes=16
+# #SBATCH --time=04:00:00
+# ##SBATCH --exclude=n0198.lr3,n0144.lr3,n0373.lr3
+
+#SBATCH --job-name=ElEnvia
 #SBATCH --partition=csd_lr6_192
 #SBATCH --qos=condo_amos
 #SBATCH --account=lr_amos
 #SBATCH --nodes=4
-#SBATCH --time=12:00:00
+#SBATCH --time=48:00:00
 
-
-# #SBATCH --job-name=ElEnvi
-# #SBATCH --partition=lr3
-# #SBATCH --qos=condo_axl
-# #SBATCH --account=lr_axl
-# #SBATCH --nodes=8
-# #SBATCH --time=02:30:00
-
-time mpirun -n 1   ./Hatom
-time mpirun -n 116 ./overlord_gsl>>salida
-
+time mpirun -n 1    ./Hatom
+time mpirun -n 116  ./overlord_gsl -eps_type krylovschur -eps_nev 30 -eps_ncv 60 -eps_smallest_real>outbound.out
+time mpirun -n 1    ./solution_writer

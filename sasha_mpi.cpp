@@ -58,10 +58,13 @@ void _genlm(char *symm,char *irrep,int l){
     file=fopen(fichero,"w");
     for(i=0;i<l;i++){
       if(m0<=i){
-	fprintf(file,"%d %d %s\n",i,m0,cs);
+      	fprintf(file,"%d %d %s\n",i,m0,cs);
       }
       // for(m=m0;m<=i;m=m+2){
-      // 	fprintf(file,"%d %d %s\n",i,m,cs);
+      // for(m=m0;m<=2;m=m+2){
+      //  	if(m<=i){
+      //  	  fprintf(file,"%d %d %s\n",i,m,cs);
+      //  	}
       // }
     }
     fclose(file);
@@ -110,9 +113,8 @@ void _genlm(char *symm,char *irrep,int l){
     }
     file=fopen(fichero,"w");
     for(i=l0;i<l;i=i+2){
-      //      fprintf(file,"%d %d %s\n",i,m0,cs);
       for(m=m0;m<=i;m=m+2){
-      	fprintf(file,"%d %d %s\n",i,m,cs);
+	fprintf(file,"%d %d %s\n",i,m,cs);
       }
     }
     fclose(file);
@@ -123,11 +125,12 @@ void _genlm(char *symm,char *irrep,int l){
     file=fopen(fichero,"w");
     for(j=0;j<l;j++){
       for(i=-j;i<=j;i++){
-       	fprintf(file,"%d %d %s\n",j,i,cs);
+	fprintf(file,"%d %d %s\n",j,i,cs);
       }
     }
     fclose(file);
   }
+  
 }
 
 void _C3jBlm(char *str1,char *str2,int j1,int j2,int j3,int m1,int m2,int m3,cmplx *zeta,cmplx *beta){
@@ -162,8 +165,10 @@ void _C3jBlm(char *str1,char *str2,int j1,int j2,int j3,int m1,int m2,int m3,cmp
 }
 
 void _GETC3J(int id,int lmax,char *str1,char *str2, int lmorb1,int lmorb2,int *lo1,int *mo1,int *lo2,int *mo2,cmplx **C3Kj,cmplx **C3Ki,cmplx **C3Jj,cmplx **C3Ji,int type){
-  int i,j,k,lv,mv,nsph,*la,*ma;
-  cmplx zeta,beta;
+  int i,j,k,lv,mv,nsph,*la,*ma,tag1=9,tag2=99;
+  cmplx zeta,beta,*c3i,*c3j;
+  MPI_Status status1,status2;
+
   nsph=(lmax-1)*(lmax+1)+1;
   la=(int*)calloc(nsph,sizeof(int));
   ma=(int*)calloc(nsph,sizeof(int));
@@ -173,149 +178,186 @@ void _GETC3J(int id,int lmax,char *str1,char *str2, int lmorb1,int lmorb2,int *l
       if(i==0){
 	la[k]=j;
 	ma[k]=i;
-        k++;
+	k++;
       }
       else{
 	la[k]=j;
 	ma[k]=i;
-        k++;
+	k++;
 	la[k]=j;
 	ma[k]=-i;
-        k++;
+	k++;
       }
     }
   }
+
+  
   *C3Kj=(cmplx*)calloc(lmorb1*lmorb2*nsph,sizeof(cmplx));
   *C3Ki=(cmplx*)calloc(lmorb1*lmorb2*nsph,sizeof(cmplx));
   *C3Jj=(cmplx*)calloc(lmorb1*lmorb1*nsph,sizeof(cmplx));
   *C3Ji=(cmplx*)calloc(lmorb2*lmorb2*nsph,sizeof(cmplx));
 
-  if(id==0){
-    for(i=0;i<lmorb1;i++){
-      for(j=0;j<lmorb2;j++){      
-	k=0;
-	for(lv=0;lv<lmax;lv++){
-	  if(la[k]>=abs(lo1[i]-lo2[j]) && la[k]<=lo1[i]+lo2[j]){
-	    for(mv=0;mv<=lv;mv++){  
-	      if(mv==0){
-		_C3jBlm(str1,str2,lo1[i],lo2[j],la[k],mo1[i],mo2[j],ma[k],&zeta,&beta);
-		(*C3Kj)[k+nsph*(j+lmorb2*i)]=zeta;
-		(*C3Ki)[k+nsph*(j+lmorb2*i)]=beta;	  
-		k++;
-	      }
-	      else{
-		_C3jBlm(str1,str2,lo1[i],lo2[j],la[k],mo1[i],mo2[j],ma[k],&zeta,&beta);
-		(*C3Kj)[k+nsph*(j+lmorb2*i)]=zeta;
-		(*C3Ki)[k+nsph*(j+lmorb2*i)]=beta;	  	      
-		k++;
-		(*C3Kj)[k+nsph*(j+lmorb2*i)]=beta;
-		(*C3Ki)[k+nsph*(j+lmorb2*i)]=zeta;	  	      
-		k++;
-	      }	    
+  c3j=(cmplx*)calloc(lmorb2*nsph,sizeof(cmplx));
+  c3i=(cmplx*)calloc(lmorb2*nsph,sizeof(cmplx));    
+  if(id<lmorb1){
+    for(j=0;j<lmorb2;j++){      
+      k=0;
+      for(lv=0;lv<lmax;lv++){
+	if(la[k]>=abs(lo1[id]-lo2[j]) && la[k]<=lo1[id]+lo2[j]){
+	  for(mv=0;mv<=lv;mv++){  
+	    if(mv==0){
+	      _C3jBlm(str1,str2,lo1[id],lo2[j],la[k],mo1[id],mo2[j],ma[k],&zeta,&beta);
+	      c3j[k+nsph*j]=zeta;
+	      c3i[k+nsph*j]=beta;
+	      k++;
 	    }
+	    else{
+	      _C3jBlm(str1,str2,lo1[id],lo2[j],la[k],mo1[id],mo2[j],ma[k],&zeta,&beta);
+	      c3j[k+nsph*j]=zeta;
+	      c3i[k+nsph*j]=beta;
+	      k++;
+	      c3j[k+nsph*j]=beta;
+	      c3i[k+nsph*j]=zeta;
+	      k++;
+	    }	    
 	  }
-	  else{
-	    for(mv=0;mv<=lv;mv++){  
-	      if(mv==0){
-		k++;
-	      }
-	      else{
-		k=k+2;
-	      }
+	}
+	else{
+	  for(mv=0;mv<=lv;mv++){  
+	    if(mv==0){
+	      k++;
+	    }
+	    else{
+	      k=k+2;
 	    }
 	  }
 	}
       }
     }
   }
-  
-  if(id==1){
+  if(id<lmorb1){
+    MPI_Send(&(c3j[0]),lmorb2*nsph,MPI_DOUBLE_COMPLEX,57,tag1,MPI_COMM_WORLD);
+    MPI_Send(&(c3i[0]),lmorb2*nsph,MPI_DOUBLE_COMPLEX,57,tag2,MPI_COMM_WORLD);
+  }
+  if(id==57){
     for(i=0;i<lmorb1;i++){
-      for(j=i;j<lmorb1;j++){
-	k=0;
-	for(lv=0;lv<lmax;lv++){
-	  if(la[k]>=abs(lo1[i]-lo1[j]) && la[k]<=lo1[i]+lo1[j]){
-	    for(mv=0;mv<=lv;mv++){  
-	      if(mv==0){
-		_C3jBlm(str1,str1,lo1[i],lo1[j],la[k],mo1[i],mo1[j],ma[k],&zeta,&beta);
-		(*C3Jj)[k+nsph*(j+lmorb1*i)]=zeta;
-		(*C3Jj)[k+nsph*(i+lmorb1*j)]=zeta; /////
-		k++;
-	      }
-	      else{
-		_C3jBlm(str1,str1,lo1[i],lo1[j],la[k],mo1[i],mo1[j],ma[k],&zeta,&beta);
-		(*C3Jj)[k+nsph*(j+lmorb1*i)]=zeta;
-		(*C3Jj)[k+nsph*(i+lmorb1*j)]=zeta; ///////
-		k++;
-		(*C3Jj)[k+nsph*(j+lmorb1*i)]=beta;
-		(*C3Jj)[k+nsph*(i+lmorb1*j)]=beta; //////
-		k++;
-	      }	    
-	    }
-	  }
-	  else{
-	    for(mv=0;mv<=lv;mv++){  
-	      if(mv==0){
-		k++;
-	      }
-	      else{
-		k=k+2;
-	      }	    
-	    }
-	  }
+      MPI_Recv(&(c3j[0]),lmorb2*nsph,MPI_DOUBLE_COMPLEX,i,tag1,MPI_COMM_WORLD,&status1);
+      MPI_Recv(&(c3i[0]),lmorb2*nsph,MPI_DOUBLE_COMPLEX,i,tag2,MPI_COMM_WORLD,&status2);
+      for(j=0;j<lmorb2;j++){
+	for(k=0;k<nsph;k++){
+	  (*C3Kj)[k+nsph*(j+lmorb2*i)]=c3j[k+nsph*j];
+	  (*C3Ki)[k+nsph*(j+lmorb2*i)]=c3i[k+nsph*j];
 	}
       }
     }
-    
-    for(i=0;i<lmorb2;i++){
-      for(j=i;j<lmorb2;j++){
-	k=0;
-	for(lv=0;lv<lmax;lv++){
-	  if(la[k]>=abs(lo2[i]-lo2[j]) && la[k]<=lo2[i]+lo2[j]){
-	    for(mv=0;mv<=lv;mv++){  	  
-	      if(mv==0){
-		_C3jBlm(str2,str2,lo2[i],lo2[j],la[k],mo2[i],mo2[j],ma[k],&zeta,&beta);
-		(*C3Ji)[k+nsph*(j+lmorb2*i)]=beta;
-		(*C3Ji)[k+nsph*(i+lmorb2*j)]=beta; ////
-		k++;
-	      }
-	      else{
-		_C3jBlm(str2,str2,lo2[i],lo2[j],la[k],mo2[i],mo2[j],ma[k],&zeta,&beta);
-		(*C3Ji)[k+nsph*(j+lmorb2*i)]=beta;
-		(*C3Ji)[k+nsph*(i+lmorb2*j)]=beta; ////
-		k++;
-		(*C3Ji)[k+nsph*(j+lmorb2*i)]=zeta;
-		(*C3Ji)[k+nsph*(i+lmorb2*j)]=zeta; ////
-		k++;
-	      }	    
+  }
+  free(c3j);
+  free(c3i);  
+  
+  c3j=(cmplx*)calloc(lmorb1*nsph,sizeof(cmplx));
+  if(id<lmorb1){
+    for(j=0;j<lmorb1;j++){
+      k=0;
+      for(lv=0;lv<lmax;lv++){
+	if(la[k]>=abs(lo1[id]-lo1[j]) && la[k]<=lo1[id]+lo1[j]){
+	  for(mv=0;mv<=lv;mv++){  
+	    if(mv==0){
+	      _C3jBlm(str1,str1,lo1[id],lo1[j],la[k],mo1[id],mo1[j],ma[k],&zeta,&beta);
+	      c3j[k+nsph*j]=zeta;
+	      k++;
 	    }
+	    else{
+	      _C3jBlm(str1,str1,lo1[id],lo1[j],la[k],mo1[id],mo1[j],ma[k],&zeta,&beta);
+	      c3j[k+nsph*j]=zeta;
+	      k++;
+	      c3j[k+nsph*j]=beta;
+	      k++;
+	    }	    
 	  }
-	  else{
-	    for(mv=0;mv<=lv;mv++){  	  
-	      if(mv==0){
-		k++;
-	      }
-	      else{
-		k=k+2;
-	      }	    
+	}
+	else{
+	  for(mv=0;mv<=lv;mv++){  
+	    if(mv==0){
+	      k++;
 	    }
+	    else{
+	      k=k+2;
+	    }	    
 	  }
 	}
       }
     }
   }
-  
-  MPI_Bcast(&((*C3Kj)[0]),lmorb1*lmorb2*nsph,MPI_DOUBLE_COMPLEX,0,MPI_COMM_WORLD);
-  MPI_Bcast(&((*C3Ki)[0]),lmorb1*lmorb2*nsph,MPI_DOUBLE_COMPLEX,0,MPI_COMM_WORLD);
-  MPI_Bcast(&((*C3Jj)[0]),lmorb1*lmorb1*nsph,MPI_DOUBLE_COMPLEX,1,MPI_COMM_WORLD);
-  MPI_Bcast(&((*C3Ji)[0]),lmorb2*lmorb2*nsph,MPI_DOUBLE_COMPLEX,1,MPI_COMM_WORLD);
+  if(id<lmorb1){
+    MPI_Send(&(c3j[0]),lmorb1*nsph,MPI_DOUBLE_COMPLEX,57,tag1,MPI_COMM_WORLD);
+  }
+  if(id==57){
+    for(i=0;i<lmorb1;i++){
+      MPI_Recv(&(c3j[0]),lmorb1*nsph,MPI_DOUBLE_COMPLEX,i,tag1,MPI_COMM_WORLD,&status1);
+      for(j=0;j<lmorb1;j++){
+	for(k=0;k<nsph;k++){
+	  (*C3Jj)[k+nsph*(j+lmorb1*i)]=c3j[k+nsph*j];
+	}
+      }
+    }
+  }
+  free(c3j);
 
+  c3i=(cmplx*)calloc(lmorb2*nsph,sizeof(cmplx));
+  if(id<lmorb2){
+    for(j=0;j<lmorb2;j++){
+      k=0;
+      for(lv=0;lv<lmax;lv++){
+	if(la[k]>=abs(lo2[id]-lo2[j]) && la[k]<=lo2[id]+lo2[j]){
+	  for(mv=0;mv<=lv;mv++){  	  
+	    if(mv==0){
+	      _C3jBlm(str2,str2,lo2[id],lo2[j],la[k],mo2[id],mo2[j],ma[k],&zeta,&beta);
+	      c3i[k+nsph*j]=beta;
+	      k++;
+	    }
+	    else{
+	      _C3jBlm(str2,str2,lo2[id],lo2[j],la[k],mo2[id],mo2[j],ma[k],&zeta,&beta);
+	      c3i[k+nsph*j]=beta;
+	      k++;
+	      c3i[k+nsph*j]=zeta;
+	      k++;
+	    }	    
+	  }
+	}
+	else{
+	  for(mv=0;mv<=lv;mv++){  	  
+	    if(mv==0){
+	      k++;
+	    }
+	    else{
+	      k=k+2;
+	    }	    
+	  }
+	}
+      }
+    }
+  }
+  if(id<lmorb2){
+    MPI_Send(&(c3i[0]),lmorb2*nsph,MPI_DOUBLE_COMPLEX,57,tag2,MPI_COMM_WORLD);
+  }
+  if(id==57){
+    for(i=0;i<lmorb2;i++){
+      MPI_Recv(&(c3i[0]),lmorb2*nsph,MPI_DOUBLE_COMPLEX,i,tag2,MPI_COMM_WORLD,&status2);
+      for(j=0;j<lmorb2;j++){
+	for(k=0;k<nsph;k++){
+	  (*C3Ji)[k+nsph*(j+lmorb2*i)]=c3i[k+nsph*j];
+	}
+      }
+    }
+  }
+  free(c3i); 
+
+  MPI_Bcast(&((*C3Kj)[0]),lmorb1*lmorb2*nsph,MPI_DOUBLE_COMPLEX,57,MPI_COMM_WORLD);
+  MPI_Bcast(&((*C3Ki)[0]),lmorb1*lmorb2*nsph,MPI_DOUBLE_COMPLEX,57,MPI_COMM_WORLD);
+  MPI_Bcast(&((*C3Ji)[0]),lmorb2*lmorb2*nsph,MPI_DOUBLE_COMPLEX,57,MPI_COMM_WORLD);
+  MPI_Bcast(&((*C3Jj)[0]),lmorb1*lmorb1*nsph,MPI_DOUBLE_COMPLEX,57,MPI_COMM_WORLD);
+  
   free(la);
   free(ma);  
 }
-
-// void _orderlbdv(int l,int *n){
-  
-// }
-
 

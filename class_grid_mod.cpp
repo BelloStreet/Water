@@ -150,24 +150,23 @@ void GRID::_HH1(int id,int numprocs,int kk,int norb,char *str,int lmerb,int *le,
     free(w);
     free(work);
     free(AT);
-    for(j=0;j<10;j++){
-      strcpy(fichero,"orbital_di_");
-      sprintf(sto,"%d",j);
-      strcat(fichero,sto);
-      strcat(fichero,"_");
-      sprintf(sto,"%d",kk);
-      strcat(fichero,sto);
-      strcat(fichero,".inp");
-      file=fopen(fichero,"w");
-      for(i=0;i<nbreak;i++){    
-    	beta=0.0;
-    	for(li=0;li<lmorb;li++){
-    	  beta=beta+c_nl[i+nbreak*li+n*j]*_Blm(str,le[li],me[li],0.0,0.0)/(cpow(Wz[i],0.5)*Xz[i]);
-    	}
-    	fprintf(file,"% .8le % .8le % .8le\n",creal(Xz[i]),creal(beta),cimag(beta));
-      }
-      fclose(file);
-    }
+    // for(j=0;j<2;j++){
+    //   strcpy(fichero,"orbital_di_");
+    //   sprintf(sto,"%d",j);
+    //   strcat(fichero,sto);
+    //   strcat(fichero,"_");
+    //   sprintf(sto,"%d",kk);
+    //   strcat(fichero,sto);
+    //   strcat(fichero,".inp");
+    //   file=fopen(fichero,"w");
+    //   for(i=0;i<nbreak;i++){    
+    // 	beta=0.0;
+    // 	for(li=0;li<lmorb;li++){
+    // 	  beta=beta+c_nl[i+nbreak*li+n*j]*_Blm(str,le[li],me[li],0.0,0.0)/(cpow(Wz[i],0.5)*Xz[i]);
+    // 	}
+    // 	fprintf(file,"% .8le % .8le % .8le\n",creal(Xz[i]),creal(beta),cimag(beta));
+    //   }
+    //   fclose(file);
     end_time=MPI_Wtime();
     printf("tiempo Diag=% .8le\n",end_time-start_time);
     fflush(stdout);
@@ -855,30 +854,30 @@ void GRID::_HH2(int id,int numprocs,int nmkl[],int nmkl0[],int nf,int mf,hamilto
       start_time=MPI_Wtime();
     }  
     n=nbreak*lmerb2*lmerb4;
-    local_n=(int)(floor(nbreak/numprocs));
-    if(id<nbreak-numprocs*local_n){
+    local_n=(int)(floor(nbreak*lmerb1/numprocs));
+    if(id<nbreak*lmerb1-numprocs*local_n){
       local_n=local_n+1;
     }
     B=(cmplx*)calloc(local_n*lmerb1*lmerb3*n,sizeof(cmplx));
-    for(i1=0;i1<local_n;i1++){	  
-      for(li1=0;li1<lmerb1;li1++){
-	for(lf1=0;lf1<lmerb3;lf1++){
-	  i=lf1+lmerb3*li1+lmerb1*lmerb3*i1;	  
-	  for(j1=0;j1<nbreak;j1++){
-	    for(li2=0;li2<lmerb2;li2++){
-	      for(lf2=0;lf2<lmerb4;lf2++){
-		j=lf2+lmerb4*li2+lmerb2*lmerb4*j1;
-		z1=0.0+0.0*I;
-		for(l=0;l<nsph;l++){
-		  if(la[l]>=abs(le1[li1]-le3[lf1]) && la[l]<=le1[li1]+le3[lf1] && la[l]>=abs(le2[li2]-le4[lf2]) && la[l]<=le2[li2]+le4[lf2]){ 
-		    z2=4.0*M_PI*pow(-1,ma[l])*_PSSN(i1+id*local_n,j1,la[l])/(2.0*la[l]+1.0);
-		    z3=CKi[l+nsph*(lf1+lmerb3*li1)];
-		    z4=CKj2[l+nsph*(lf2+lmerb4*li2)];
-		    z1=z1+z2*z3*z4;
-		  }
+    for(i2=0;i2<local_n;i2++){	  
+      li1=floor((i2+id*local_n)/nbreak);
+      i1=i2+id*local_n-nbreak*li1;	
+      for(lf1=0;lf1<lmerb3;lf1++){
+	i=lf1+lmerb3*i2;
+	for(j1=0;j1<nbreak;j1++){
+	  for(li2=0;li2<lmerb2;li2++){
+	    for(lf2=0;lf2<lmerb4;lf2++){
+	      j=lf2+lmerb4*li2+lmerb2*lmerb4*j1;
+	      z1=0.0+0.0*I;
+	      for(l=0;l<nsph;l++){
+		if(la[l]>=abs(le1[li1]-le3[lf1]) && la[l]<=le1[li1]+le3[lf1] && la[l]>=abs(le2[li2]-le4[lf2]) && la[l]<=le2[li2]+le4[lf2]){ 
+		  z2=4.0*M_PI*pow(-1,ma[l])*_PSSN(i1,j1,la[l])/(2.0*la[l]+1.0);
+		  z3=CKi[l+nsph*(lf1+lmerb3*li1)];
+		  z4=CKj2[l+nsph*(lf2+lmerb4*li2)];
+		  z1=z1+z2*z3*z4;
 		}
-		B[j+n*i]=z1;
 	      }
+	      B[j+n*i]=z1;
 	    }
 	  }
 	}
@@ -939,33 +938,34 @@ void GRID::_HH2(int id,int numprocs,int nmkl[],int nmkl0[],int nf,int mf,hamilto
       m2=ijkl[3+4*lnri];
       
       z2=0.0+0.0*I;
-      for(i1=0;i1<local_n;i1++){
-      	for(li1=0;li1<lmerb1;li1++){
-      	  for(lf1=0;lf1<lmerb3;lf1++){
-      	    i=lf1+lmerb3*li1+lmerb1*lmerb3*i1;	    
-      	    z1=0.0+0.0*I;
-      	    for(j1=0;j1<nbreak;j1++){
-      	      for(li2=0;li2<lmerb2;li2++){
-      		for(lf2=0;lf2<lmerb4;lf2++){
-      		  j=lf2+lmerb4*li2+lmerb2*lmerb4*j1;
-		  z1=z1+B[j+n*i]*p[j0].c_nl[j1+nbreak*li2+k2*(m1+m02)]*p[l0].c_nl[j1+nbreak*lf2+k4*(m2+m04)];
-		}
+      for(i2=0;i2<local_n;i2++){
+	li1=floor((i2+id*local_n)/nbreak);
+	i1=i2+id*local_n-nbreak*li1;	  
+	for(lf1=0;lf1<lmerb3;lf1++){
+	  i=lf1+lmerb1*i2;
+	  z1=0.0+0.0*I;
+	  for(j1=0;j1<nbreak;j1++){
+	    for(li2=0;li2<lmerb2;li2++){
+	      for(lf2=0;lf2<lmerb4;lf2++){
+		j=lf2+lmerb4*li2+lmerb2*lmerb4*j1;
+		z1=z1+B[j+n*i]*p[j0].c_nl[j1+nbreak*li2+k2*(m1+m02)]*p[l0].c_nl[j1+nbreak*lf2+k4*(m2+m04)];
 	      }
 	    }
-	    B1[i]=z1;
 	  }
+	  B1[i]=z1;
 	}
       }
       
       z1=0.0+0.0*I;
-      for(i1=0;i1<local_n;i1++){
-      	for(li1=0;li1<lmerb1;li1++){
-      	  for(lf1=0;lf1<lmerb3;lf1++){
-      	    i=lf1+lmerb3*li1+lmerb1*lmerb3*i1;
-	    z1=z1+B1[i]*p[i0].c_nl[i1+id*local_n+nbreak*li1+k1*(n1+n01)]*p[k0].c_nl[i1+id*local_n+nbreak*lf1+k3*(n2+n03)];
-	  }
+      for(i2=0;i2<local_n;i2++){
+	li1=floor((i2+id*local_n)/nbreak);
+	i1=i2+id*local_n-nbreak*li1;      
+	for(lf1=0;lf1<lmerb3;lf1++){
+	  i=lf1+lmerb1*i2;
+	  z1=z1+B1[i]*p[i0].c_nl[i1+nbreak*li1+k1*(n1+n01)]*p[k0].c_nl[i1+nbreak*lf1+k3*(n2+n03)];
 	}
       }
+      
       MPI_Allreduce(&z1,&z2,1,MPI_DOUBLE_COMPLEX,MPI_SUM,PETSC_COMM_WORLD);    
       B12[lnri]=z2;    
     }
@@ -1176,29 +1176,28 @@ void GRID::_VVz(int id,int numprocs,int nmkl[],int nmkl0[],int nf,int mf,hamilto
   k2=nbreak*lmerb2;
   k3=nbreak*lmerb3;
   k4=nbreak*lmerb4;
-  local_n=(int)(floor(nbreak/numprocs));
-  if(id<nbreak-numprocs*local_n){
-    local_n=local_n+1;
-  }
 
-  
   for(lnri=0;lnri<nbie;lnri++){
     n1=ijkl[0+4*lnri];
     n2=ijkl[1+4*lnri];
     m1=ijkl[2+4*lnri];
     m2=ijkl[3+4*lnri];
 
-    
+    local_n=(int)(floor(nbreak*lmerb2/numprocs));
+    if(id<nbreak*lmerb2-numprocs*local_n){
+      local_n=local_n+1;
+    }
     z3=0.0+0.0*I;
     z1=0.0+0.0*I;
     if(i0==k0 && n1+n01==n2+n03){
-      for(i1=0;i1<local_n;i1++){
-	for(li2=0;li2<lmerb2;li2++){
-	  for(lf2=0;lf2<lmerb4;lf2++){
-	    for(l=0;l<nsph;l++){
-	      if((la[l]==1 && ma[l]==0) && la[l]==abs(le2[li2]-le4[lf2])){
-		z1=z1+Xz[i1+id*local_n]*p[j0].c_nl[i1+id*local_n+nbreak*li2+k2*(m1+m02)]*p[l0].c_nl[i1+id*local_n+nbreak*lf2+k4*(m2+m04)]*CKj2[l+nsph*(lf2+lmerb4*li2)];
-	      }
+
+      for(i2=0;i2<local_n;i2++){
+	li2=floor((i2+id*local_n)/nbreak);
+	i1=i2+id*local_n-nbreak*li2;
+	for(lf2=0;lf2<lmerb4;lf2++){	    
+	  for(l=0;l<nsph;l++){
+	    if((la[l]==1 && ma[l]==0) && la[l]==abs(le2[li2]-le4[lf2])){
+	      z1=z1+Xz[i1]*p[j0].c_nl[i1+nbreak*li2+k2*(m1+m02)]*p[l0].c_nl[i1+nbreak*lf2+k4*(m2+m04)]*CKj2[l+nsph*(lf2+lmerb4*li2)];
 	    }
 	  }
 	}
@@ -1206,16 +1205,20 @@ void GRID::_VVz(int id,int numprocs,int nmkl[],int nmkl0[],int nf,int mf,hamilto
     }
     MPI_Allreduce(&z1,&z3,1,MPI_DOUBLE_COMPLEX,MPI_SUM,PETSC_COMM_WORLD);
 
+    local_n=(int)(floor(nbreak*lmerb1/numprocs));
+    if(id<nbreak*lmerb1-numprocs*local_n){
+      local_n=local_n+1;
+    }
     z5=0.0+0.0*I;
     z1=0.0+0.0*I;
     if(j0==l0 && m1+m02==m2+m04){
-      for(i1=0;i1<local_n;i1++){
-	for(li1=0;li1<lmerb1;li1++){
-	  for(lf1=0;lf1<lmerb3;lf1++){
-	    for(l=0;l<nsph;l++){
-	      if((la[l]==1 && ma[l]==0) && la[l]==abs(le1[li1]-le3[lf1])){
-		z1=z1+Xz[i1+id*local_n]*p[i0].c_nl[i1+id*local_n+nbreak*li1+k1*(n1+n01)]*p[k0].c_nl[i1+id*local_n+nbreak*lf1+k3*(n2+n03)]*CKj[l+nsph*(lf1+lmerb3*li1)];
-	      }
+      for(i2=0;i2<local_n;i2++){
+	li1=floor((i2+id*local_n)/nbreak);
+	i1=i2+id*local_n-nbreak*li1;
+	for(lf1=0;lf1<lmerb1;lf1++){      
+	  for(l=0;l<nsph;l++){
+	    if((la[l]==1 && ma[l]==0) && la[l]==abs(le1[li1]-le3[lf1])){
+	      z1=z1+Xz[i1]*p[i0].c_nl[i1+nbreak*li1+k1*(n1+n01)]*p[k0].c_nl[i1+nbreak*lf1+k3*(n2+n03)]*CKj[l+nsph*(lf1+lmerb3*li1)];
 	    }
 	  }
 	}

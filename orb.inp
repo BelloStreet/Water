@@ -1,32 +1,134 @@
-h2o.molden
-C2v b2
-5
-0 a1
-1 a1
-2 b2
-3 a1
-4 b1
+be_no_hf.molden 
+D2h 8
+ag b3u b2u b1g b1u b2g b3g au
+1
+0 ag
+12
+1 1 1 1
+2 2 0 0
+3 3 0 0
+4 4 0 0
+5 5 0 0
+6 6 0 0
+7 7 0 0
+8 8 0 0
+1 5 1 0
+6 2 0 0
+7 3 0 0
+8 4 0 0
+
 
 lih_states3.02_nodiffuse.molden2015
-C2v a1
-2
+C2v 3
+a1 b1 b2
+1
 0 a1
-1 a1
-
-
-li2.molden
-D2h b1u
 3
-0 ag
-1 b1u
-2 ag
+1 1 1 1
+2 2 0 0
+3 3 0 0
+4 4 0 0
 
 
-be_no_hf.molden
-D2h ag
-2
+LiH_test/
+
+
+
+
+
+mg_no_hf_2.molden 
+D2h 8
+ag b3u b2u b1g b1u b2g b3g au
+5
 0 ag
 1 ag
+2 b1u
+3 b2u
+4 b3u
+8
+1 1 2 2
+2 2 1 1
+3 3 1 1
+4 4 0 0
+5 5 1 1
+6 6 0 0
+7 7 0 0
+8 8 0 0
+
+ag b3u b2u b1g b1u b2g b3g au
+
+
+
+
+LiH_test/lih_states3.02_nodiffuse.molden2015
+C2v 1
+a1 
+1
+0 a1
+1
+1 1 1 1
+2 2 0 0
+3 3 0 0
+4 4 0 0
+
+
+mg_no_hf.molden
+D2h 8
+ag b3u b2u b1g b1u b2g b3g au 
+5
+0 ag
+1 ag
+2 b1u
+3 b2u
+4 b3u
+5 ag
+
+
+ne_no_hf.molden
+D2h 8
+ag b3u b2u b1g b1u b2g b3g au
+5
+0 ag
+1 ag
+2 b1u
+3 b3u
+4 b2u
+
+
+ar_no_hf.molden
+D2h ag
+9
+0 ag
+1 ag
+2 b1u
+3 b3u
+4 b2u
+5 ag
+6 b1u
+7 b2u
+8 b3u
+
+
+mg_no_hf.molden
+D2h 5
+ag b3u b2u b1g b1u
+5
+0 ag
+1 ag
+2 b1u
+3 b2u
+4 b3u
+5
+1 1 2 2
+2 2 1 1
+3 3 1 1
+4 4 0 0
+5 5 1 1
+6 6 0 0
+7 7 0 0
+8 8 0 0
+
+ b1u b2g b3g au 
 
 
 

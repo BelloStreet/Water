@@ -1,0 +1,11 @@
+#!/bin/bash
+#SBATCH --job-name=ElEnvi
+#SBATCH --qos=debug
+#SBATCH --time=00:30:00
+#SBATCH --nodes=3
+#SBATCH --tasks-per-node=20
+#SBATCH --constraint=knl
+
+time srun -n 1  ./Hatom
+time srun -n 58 ./overlord_gsl>salida
+

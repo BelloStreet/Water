@@ -29,7 +29,7 @@ cmplx _Ylm(int l,int m,double theta,double phi){
   double y;
   cmplx c1,c2,c3;
   m1=abs(m);
-  y=gsl_sf_legendre_sphPlm(l,m1,cos(theta));
+  y=pow(-1.0,m)*gsl_sf_legendre_sphPlm(l,m1,cos(theta));
   c1=cos(m1*phi)+sin(m1*phi)*I;
   if(m>=0){
     c3=c1*y;
@@ -59,32 +59,20 @@ void _INITORB(int io,int nbas,int lmerb,char *str,int lmorb,int *lo,int *mo,cmpl
   strcpy(p[io].str,str); 
 }
 
-void _ORTORB(int nbas,int io,int il,orbitals *p){
-  int i,lmerb;
-  double beta;
-  lmerb=p[io].lmerb;
-  beta=0.0;
-  for(i=0;i<nbas*lmerb;i++){
-    beta=beta+creal(p[io].cilm[i]*conj(p[il].cilm[i]));
+void _INITH(int io,int nbas,char *str,int lmerb,int *le,int *me,cmplx *c_nl,cmplx *e_nl,hamilton *p){
+  int i;
+  p[io].nbas=nbas;
+  p[io].lmerb=lmerb;
+  for(i=0;i<nbas*nbas*lmerb*lmerb;i++){
+    p[io].c_nl[i]=c_nl[i];
   }
-  printf("orto=% .8le\n",beta);
+  for(i=0;i<nbas*lmerb;i++){
+    p[io].e_nl[i]=e_nl[i];
+  }
+  for(i=0;i<lmerb;i++){
+    p[io].le[i]=le[i];
+    p[io].me[i]=me[i];
+  }
+  strcpy(p[io].str,str);
 }
 
-
-// void _INITORB(int nbas,int lmerb,char *str,int lmorb,int *lo,int *mo,cmplx *cilm,cmplx *J,cmplx *K,orbitals *p){
-//   int i;
-//   p->lmorb=lmorb;
-//   p->lmerb=lmerb;
-//   for(i=0;i<nbas*nbas*lmerb*lmerb;i++){
-//     p->J[i]=J[i];
-//     p->K[i]=K[i];
-//   }
-//   for(i=0;i<nbas*lmorb;i++){
-//     p->cilm[i]=cilm[i];
-//   }
-//   for(i=0;i<lmorb;i++){
-//     p->lo[i]=lo[i];
-//     p->mo[i]=mo[i];
-//   }
-//   strcpy(p->str,str); 
-// }
