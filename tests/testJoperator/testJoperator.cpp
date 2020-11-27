@@ -10,7 +10,7 @@
 int main(int argc, char **argv) {
 
   int ndvr = 5;
-  int nel = 13, lmax = 0, lmax_times_2 = 19;
+  int nel = 13, lmax = 0, lmax_times_2 = 1;
   int numprocs, id;
 
   MPI_Init(&argc, &argv);
@@ -31,8 +31,9 @@ int main(int argc, char **argv) {
                                                           molecule, b2);
   auto T = std::make_shared<Toperator>(realGrid, 19);
 
-  /* Joperator J(realGrid->getNbas(), angularGrid, B2, first_A1, T); */
-  Joperator J(numprocs, id, realGrid->getNbas(), angularGrid, B2, first_A1, T);
+  Joperator J(realGrid->getNbas(), angularGrid, B2, first_A1, T);
+  /* Joperator J(numprocs, id, realGrid->getNbas(), angularGrid, B2, first_A1,
+   * T); */
 
   return 0;
 }

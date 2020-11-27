@@ -1,0 +1,17 @@
+{
+  "configurations":{
+    "run": {
+      "adaptor": "vscode-cpptools",
+      "configurations":{
+        "type": "cppdbg",
+        "MIMode": "lldb",
+        "request": "launch",
+        "protocol": "auto",
+        "stopOnEntry": true,
+        "console": "integratedTerminal",
+        "program": "${workspaceRoot}/tests/testJoperator/testJoperator.cpp",
+        "cwd": "${workspaceRoot}"
+      }
+    }
+  }
+}
