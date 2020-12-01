@@ -83,7 +83,7 @@ list (APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 # find_package(LAPACK REQUIRED COMPONENTS lapacke)
 
-# find_package(LAPACK REQUIRED)
+find_package(LAPACK REQUIRED)
 find_package(MKL REQUIRED)
 if(MKL_FOUND)
   include_directories(${MKL_INCLUDE_DIRS})
