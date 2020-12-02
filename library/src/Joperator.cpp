@@ -199,10 +199,10 @@ Joperator::Joperator(
     {
       for (int j = 0; j < a_Nbas * ket_bra_num_channels; ++j)
         {
-          int                  ket_r = i / ket_bra_num_channels;
-          int                  ket_l = i % ket_bra_num_channels;
-          int                  bra_r = j / ket_bra_num_channels;
-          int                  bra_l = j % ket_bra_num_channels;
+          int                  ket_r = i / a_Nbas;
+          int                  ket_l = i % a_Nbas;
+          int                  bra_r = j / a_Nbas;
+          int                  bra_l = j % a_Nbas;
           std::complex<double> tmp_J(0, 0);
           if (ket_r == bra_r)
             {
